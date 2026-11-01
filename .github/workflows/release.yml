@@ -31,7 +31,15 @@ jobs:
           }
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
       - run: pnpm verify
+      - name: Check published version
+        id: published
+        run: |
+          if npm view "dsh-quicknote@$VERSION" version >/dev/null 2>&1; then
+            echo "already=true" >> "$GITHUB_OUTPUT"
+            echo "dsh-quicknote@$VERSION is already on npm; skipping publish."
+          fi
       - name: Publish
+        if: steps.published.outputs.already != 'true'
         run: |
           case "$VERSION" in
             *-*) npm publish --provenance --access public --tag next ;;
