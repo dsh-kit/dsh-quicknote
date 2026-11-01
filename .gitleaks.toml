@@ -1,0 +1,13 @@
+title = "dsh-kit"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Generated output and dependency trees are not source."
+paths = [
+  '''node_modules''',
+  '''site/node_modules''',
+  '''site/.vitepress/cache''',
+  '''site/.vitepress/dist'''
+]

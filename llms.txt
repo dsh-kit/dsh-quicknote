@@ -1,0 +1,30 @@
+# dsh-quicknote
+
+> Capture a note from the DSH composer, keep it out of the way, and manage the list on one page.
+
+## Install
+
+    dsh plugin --profile <profile> add dsh-quicknote
+
+## Verify
+
+    dsh --profile <profile> --dump-config | grep -A2 "id: dsh-quicknote"
+
+## Develop
+
+    pnpm install
+    pnpm verify
+
+## Read next
+
+- README.md — user guide
+- AGENTS.md — repository rules and invariants
+- src/host/ — Host half
+- src/client/ — browser half
+- tests/ — both suites
+
+## Contracts
+
+- Package: dsh-quicknote
+- Patch row: `dsh-quicknote`
+- Client module id: `dsh-quicknote`

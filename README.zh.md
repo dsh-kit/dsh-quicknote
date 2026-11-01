@@ -1,0 +1,57 @@
+# dsh-quicknote
+
+从输入框随手记下一条，不打断当前对话，之后在一页里找回。
+
+- **从输入框**：点击工具栏的 **记一下**；卡片会带上当前草稿。可以只保存笔记，也可以显式选择“保存并清空输入框”。
+- **从侧栏**：随手记页面按时间倒序列出全部笔记，可完成、重新打开、删除。
+- **从 Agent**：`quicknote_add`、`quicknote_list`、`quicknote_done`、`quicknote_delete`。
+- **存储**：`~/.dsh/quicknote/notes.json`，本地、权限 `0600`、原子写入，无遥测。
+
+## 安装
+
+开发时链接工作副本：
+
+```bash
+dsh plugin --profile <profile> add link:$PWD
+```
+
+发布后按包名安装：
+
+```bash
+dsh plugin --profile <profile> add dsh-quicknote
+```
+
+桌面 profile 由应用托管：把 `dsh-quicknote` 加进 `dsh.profile.bundles` 与依赖，在 profile 里执行 `pnpm install`，重启 DSH。
+
+## 验证
+
+```bash
+dsh --profile <profile> --dump-config | grep -A2 "id: dsh-quicknote"
+```
+
+## 开发
+
+```bash
+pnpm install
+pnpm verify   # 格式 → lint → 类型 → 测试 → 构建 → 打包
+```
+
+npm 也可用：`npm install && npm run verify`。
+
+- `src/host/`：存储、四个 JSON 路由、四个 Agent 工具；
+- `src/client/`：输入框按钮、记录卡片、侧栏页面；
+- `lib/`：构建产物，提交进仓库（`link:` 安装不会构建）；
+- `tests/`：存储与客户端注册测试；
+- `AGENTS.md` / `llms.txt`：agent 上下文；
+- `PUBLISHING.md`：发布清单。
+
+## 数据与 API
+
+- `GET /api/quicknote/notes`
+- `POST /api/quicknote/notes/create` `{ text }`
+- `POST /api/quicknote/notes/update` `{ id, done }`
+- `POST /api/quicknote/notes/delete` `{ id }`
+
+## 许可
+
+MIT
