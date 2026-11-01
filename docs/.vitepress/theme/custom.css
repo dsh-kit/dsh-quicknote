@@ -11,14 +11,17 @@
   --vp-home-hero-name-color: #f3f4f6;
 }
 .VPHome .VPHero {
-  min-height: calc(100svh - var(--vp-nav-height));
+  min-height: calc(100svh + 8px);
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 .VPHome .VPHero .image-container {
-  width: min(360px, 78vw);
-  height: min(360px, 78vw);
+  width: min(340px, 72vw);
+  height: min(340px, 72vw);
+}
+.VPHome .VPFeatures {
+  margin-top: 8px;
 }
 .VPFeature {
   transition: transform 0.18s ease, border-color 0.18s ease;
@@ -32,5 +35,29 @@
   border: 1px solid var(--vp-c-divider);
 }
 @media (prefers-reduced-motion: reduce) {
-  .VPFeature { transition: none; }
+  .VPHome .VPFeatures {
+  margin-top: 8px;
+}
+.VPFeature { transition: none; }
+}
+
+@media (max-width: 959px) {
+  .VPHome .VPHero {
+    min-height: calc(100svh + 8px);
+    padding-top: 96px;
+    padding-bottom: 48px;
+  }
+  .VPHome .VPHero .image-container {
+    width: min(280px, 56vw);
+    height: min(280px, 56vw);
+  }
+}
+@media (max-width: 640px) {
+  .VPHome .VPHero {
+    padding-top: 64px;
+  }
+  .VPHome .VPHero .image-container {
+    width: min(220px, 48vw);
+    height: min(220px, 48vw);
+  }
 }
