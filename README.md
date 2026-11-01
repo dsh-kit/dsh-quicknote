@@ -10,7 +10,7 @@ Capture a note from the composer, keep it out of the way, and find it again on o
 
 ## Documentation
 
-<https://quicknote.dsh-kit.dev>
+<https://dsh-kit.github.io/dsh-quicknote/>
 
 ## Install
 

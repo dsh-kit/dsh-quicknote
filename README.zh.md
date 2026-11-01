@@ -9,7 +9,7 @@
 
 ## 文档
 
-<https://quicknote.dsh-kit.dev/zh/>
+<https://dsh-kit.github.io/dsh-quicknote/zh/>
 
 ## 安装
 
