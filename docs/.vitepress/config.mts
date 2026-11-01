@@ -17,7 +17,7 @@ export default defineConfig({
     zh: { label: '中文', lang: 'zh-CN', link: '/zh/' }
   },
   themeConfig: {
-    logo: '/icon.svg',
+    logo: '/logo-a.svg',
     socialLinks: [{ icon: 'github', link: repository }],
     editLink: { pattern: editPattern, text: 'Edit this page on GitHub' },
     search: { provider: 'local' },

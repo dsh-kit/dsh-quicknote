@@ -10,6 +10,16 @@
   --vp-c-brand-3: #b9bcc2;
   --vp-home-hero-name-color: #f3f4f6;
 }
+.VPHome .VPHero {
+  min-height: calc(100svh - var(--vp-nav-height));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.VPHome .VPHero .image-container {
+  width: min(360px, 78vw);
+  height: min(360px, 78vw);
+}
 .VPFeature {
   transition: transform 0.18s ease, border-color 0.18s ease;
 }
