@@ -1,5 +1,8 @@
 # dsh-quicknote
 
+[![npm](https://img.shields.io/npm/v/dsh-quicknote)](https://www.npmjs.com/package/dsh-quicknote)
+[![release](https://img.shields.io/github/v/release/dsh-kit/dsh-quicknote?label=release)](https://github.com/dsh-kit/dsh-quicknote/releases)
+
 Capture a note from the composer, keep it out of the way, and find it again on one page.
 
 - **From the composer**: click **Note** in the composer toolbar. The card opens with the current draft; save it

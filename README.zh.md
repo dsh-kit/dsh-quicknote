@@ -1,5 +1,8 @@
 # dsh-quicknote
 
+[![npm](https://img.shields.io/npm/v/dsh-quicknote)](https://www.npmjs.com/package/dsh-quicknote)
+[![release](https://img.shields.io/github/v/release/dsh-kit/dsh-quicknote?label=release)](https://github.com/dsh-kit/dsh-quicknote/releases)
+
 从输入框随手记下一条，不打断当前对话，之后在一页里找回。
 
 - **从输入框**：点击工具栏的 **记一下**；卡片会带上当前草稿。可以只保存笔记，也可以显式选择“保存并清空输入框”。
