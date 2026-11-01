@@ -4,7 +4,7 @@ hero:
   text: DeepSeek Harness 里的随手记
   tagline: 从输入框捕获，草稿不被偷走，所有笔记在一页里管理。
   image:
-    src: /logo.svg
+    src: /icon.svg
     alt: dsh-quicknote
   actions:
     - theme: brand

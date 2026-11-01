@@ -4,7 +4,7 @@ hero:
   text: Quick notes inside DeepSeek Harness
   tagline: Capture from the composer, keep the draft safe, and manage everything on one page.
   image:
-    src: /logo.svg
+    src: /icon.svg
     alt: dsh-quicknote
   actions:
     - theme: brand
