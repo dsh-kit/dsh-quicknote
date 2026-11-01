@@ -14,7 +14,34 @@ export default defineConfig({
   head: [['link', { rel: 'icon', href: `${base}icon.svg`, type: 'image/svg+xml' }]],
   locales: {
     root: { label: 'English', lang: 'en' },
-    zh: { label: '中文', lang: 'zh-CN', link: '/zh/' }
+    zh: {
+      label: '中文',
+      lang: 'zh-CN',
+      link: '/zh/',
+      themeConfig: {
+        editLink: { pattern: editPattern, text: '在 GitHub 上编辑此页' },
+        outline: { label: '本页目录' },
+        nav: [
+          { text: '安装', link: '/zh/guide/install' },
+          { text: '使用', link: '/zh/guide/usage' },
+          { text: '参考', link: '/zh/reference/api' }
+        ],
+        sidebar: {
+          '/zh/guide/': [
+            {
+              text: '指南',
+              items: [
+                { text: '安装', link: '/zh/guide/install' },
+                { text: '使用', link: '/zh/guide/usage' },
+                { text: '开发', link: '/zh/guide/development' }
+              ]
+            },
+            { text: '参考', items: [{ text: '数据与 API', link: '/zh/reference/api' }] }
+          ],
+          '/zh/reference/': [{ text: '参考', items: [{ text: '数据与 API', link: '/zh/reference/api' }] }]
+        }
+      }
+    }
   },
   themeConfig: {
     logo: '/logo-a.svg',
@@ -40,32 +67,6 @@ export default defineConfig({
       ],
       '/reference/': [{ text: 'Reference', items: [{ text: 'Data and API', link: '/reference/api' }] }]
     },
-    locales: {
-      zh: {
-        label: '中文',
-        lang: 'zh-CN',
-        link: '/zh/',
-        editLink: { pattern: editPattern, text: '在 GitHub 上编辑此页' },
-        nav: [
-          { text: '安装', link: '/zh/guide/install' },
-          { text: '使用', link: '/zh/guide/usage' },
-          { text: '参考', link: '/zh/reference/api' }
-        ],
-        sidebar: {
-          '/zh/guide/': [
-            {
-              text: '指南',
-              items: [
-                { text: '安装', link: '/zh/guide/install' },
-                { text: '使用', link: '/zh/guide/usage' },
-                { text: '开发', link: '/zh/guide/development' }
-              ]
-            },
-            { text: '参考', items: [{ text: '数据与 API', link: '/zh/reference/api' }] }
-          ],
-          '/zh/reference/': [{ text: '参考', items: [{ text: '数据与 API', link: '/zh/reference/api' }] }]
-        }
-      }
-    }
+
   }
 })
