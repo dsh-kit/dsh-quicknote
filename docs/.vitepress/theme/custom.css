@@ -1,0 +1,26 @@
+:root {
+  --vp-c-brand-1: #0f1115;
+  --vp-c-brand-2: #2a2d34;
+  --vp-c-brand-3: #44484f;
+  --vp-home-hero-name-color: #0f1115;
+}
+.dark {
+  --vp-c-brand-1: #f3f4f6;
+  --vp-c-brand-2: #d6d8dd;
+  --vp-c-brand-3: #b9bcc2;
+  --vp-home-hero-name-color: #f3f4f6;
+}
+.VPFeature {
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+.VPFeature:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--vp-c-brand-1) 22%, var(--vp-c-divider));
+}
+.vp-doc img {
+  border-radius: 12px;
+  border: 1px solid var(--vp-c-divider);
+}
+@media (prefers-reduced-motion: reduce) {
+  .VPFeature { transition: none; }
+}

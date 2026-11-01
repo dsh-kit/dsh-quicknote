@@ -36,6 +36,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build docs
         working-directory: docs
+        env:
+          VITEPRESS_BASE: /dsh-quicknote/
         run: pnpm build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
