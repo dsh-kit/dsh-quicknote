@@ -3,12 +3,15 @@ import { defineConfig } from 'vitepress'
 const repository = 'https://github.com/dsh-kit/dsh-quicknote'
 const editPattern = `${repository}/edit/main/docs/:path`
 
+const base = process.env.VITEPRESS_BASE ?? '/'
+
 export default defineConfig({
+  base,
   title: 'dsh-quicknote',
   description: 'Quick notes inside DeepSeek Harness.',
   cleanUrls: false,
   lastUpdated: true,
-  head: [['link', { rel: 'icon', href: '/icon.svg', type: 'image/svg+xml' }]],
+  head: [['link', { rel: 'icon', href: `${base}icon.svg`, type: 'image/svg+xml' }]],
   locales: {
     root: { label: 'English', lang: 'en' },
     zh: { label: '中文', lang: 'zh-CN', link: '/zh/' }
