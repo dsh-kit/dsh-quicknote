@@ -87,8 +87,10 @@ export function Overlay({ t }: { t: (key: string) => string }) {
           width: "min(560px, 100%)",
           padding: 20,
           borderRadius: 14,
-          background: "var(--dsw-alias-bg, #fff)",
-          boxShadow: "0 24px 70px rgba(0,0,0,.3)",
+          background: "var(--dsw-alias-bg-overlay, #fff)",
+          boxShadow: "var(--dsw-elevation-panel, 0 24px 70px rgba(0,0,0,.3))",
+          color: "var(--dsw-alias-label-primary, inherit)",
+          colorScheme: "light dark",
         }}
       >
         <h2 style={{ margin: 0, fontSize: 18 }}>{t("overlay.title")}</h2>
@@ -104,13 +106,18 @@ export function Overlay({ t }: { t: (key: string) => string }) {
             marginTop: 12,
             padding: 10,
             borderRadius: 8,
-            border: "1px solid var(--dsw-alias-line, #d9dce1)",
+            border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+            background: "var(--dsw-alias-bg-layer-1, transparent)",
+            color: "var(--dsw-alias-label-primary, inherit)",
             font: "inherit",
             resize: "vertical",
           }}
         />
         {error === "" ? null : (
-          <p role="alert" style={{ color: "var(--dsw-alias-danger, #c0392b)", margin: "8px 0 0" }}>
+          <p
+            role="alert"
+            style={{ color: "var(--dsw-alias-state-error-primary, #c0392b)", margin: "8px 0 0" }}
+          >
             {error}
           </p>
         )}
@@ -126,7 +133,15 @@ export function Overlay({ t }: { t: (key: string) => string }) {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            style={{ padding: "7px 12px", borderRadius: 8 }}
+            style={{
+              padding: "7px 12px",
+              borderRadius: 8,
+              border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+              background: "var(--dsw-alias-bg-layer-1, transparent)",
+              color: "var(--dsw-alias-label-primary, inherit)",
+              font: "inherit",
+              cursor: "pointer",
+            }}
           >
             {t("overlay.cancel")}
           </button>
@@ -134,7 +149,15 @@ export function Overlay({ t }: { t: (key: string) => string }) {
             type="button"
             disabled={saving}
             onClick={() => void save(false)}
-            style={{ padding: "7px 12px", borderRadius: 8 }}
+            style={{
+              padding: "7px 12px",
+              borderRadius: 8,
+              border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+              background: "var(--dsw-alias-bg-layer-1, transparent)",
+              color: "var(--dsw-alias-label-primary, inherit)",
+              font: "inherit",
+              cursor: "pointer",
+            }}
           >
             {t("overlay.save")}
           </button>
@@ -142,7 +165,15 @@ export function Overlay({ t }: { t: (key: string) => string }) {
             type="button"
             disabled={saving || sessionId === undefined}
             onClick={() => void save(true)}
-            style={{ padding: "7px 12px", borderRadius: 8 }}
+            style={{
+              padding: "7px 12px",
+              borderRadius: 8,
+              border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+              background: "var(--dsw-alias-bg-layer-1, transparent)",
+              color: "var(--dsw-alias-label-primary, inherit)",
+              font: "inherit",
+              cursor: "pointer",
+            }}
           >
             {t("overlay.saveClear")}
           </button>

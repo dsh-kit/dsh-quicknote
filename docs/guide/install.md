@@ -7,7 +7,7 @@
 Open DSH, go to the plugin page, and install `dsh-quicknote`. The desktop profile is managed by the application;
 `dsh plugin` cannot modify it.
 
-Restart DSH after installation. You should see **Quick Note** in the sidebar and **Note** in the composer toolbar.
+Restart DSH after installation. You should see **Quick Note** in the sidebar and **Quick Note** in the composer toolbar.
 
 ### CLI or web profile
 
@@ -73,7 +73,7 @@ the build and a pack check. A normal user installing from npm does not need eith
 Open DSH and check:
 
 - the sidebar has **Quick Note**;
-- the composer toolbar has **Note**;
+- the composer toolbar has **Quick Note**;
 - saving a note and reopening DSH keeps it.
 
 Advanced check:

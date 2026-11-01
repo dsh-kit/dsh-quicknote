@@ -6,7 +6,7 @@
 
 打开 DSH，进入插件页，安装 `dsh-quicknote`。`desktop` profile 由应用管理，不能用 `dsh plugin` 修改。
 
-安装后重启 DSH。侧栏应出现 **随手记**，输入框工具栏应出现 **记一下**。
+安装后重启 DSH。侧栏应出现 **随手记**，输入框工具栏应出现 **随手记**。
 
 ### CLI 或 web profile
 
@@ -71,7 +71,7 @@ dsh plugin --profile web add link:$PWD
 打开 DSH，确认：
 
 - 侧栏有 **随手记**；
-- 输入框工具栏有 **记一下**；
+- 输入框工具栏有 **随手记**；
 - 保存一条笔记后重启 DSH，笔记仍在。
 
 进阶检查：
