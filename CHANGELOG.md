@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Package homepage now points to the plugin documentation, not the GitHub repository
+- No runtime behavior changes
+
 ## 0.1.0
 
 First release.
