@@ -8,6 +8,10 @@ Capture a note from the composer, keep it out of the way, and find it again on o
 - **From an agent**: `quicknote_add`, `quicknote_list`, `quicknote_done`, `quicknote_delete`.
 - **Storage**: `~/.dsh/quicknote/notes.json` — local, mode `0600`, atomic writes. No telemetry.
 
+## Documentation
+
+<https://quicknote.dsh-kit.dev>
+
 ## Install
 
 For development, link the working copy:
