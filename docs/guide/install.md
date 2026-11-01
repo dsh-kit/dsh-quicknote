@@ -15,6 +15,37 @@ You should then see **Quick Note** in the sidebar and **Note** in the composer t
 
 `desktop` is the profile used by the desktop app. If you use another profile, replace it with that profile's name.
 
+## Is this the dsh-kit plugin?
+
+The maintained plugin is:
+
+- npm: `dsh-quicknote`
+- upstream: <https://github.com/dsh-kit/dsh-quicknote>
+- composer button: **Note** (English) / **记一下** (Chinese)
+- data: `~/.dsh/quicknote/notes.json`
+
+A legacy local plugin at `wilsonwangdev/dsh-quicknote` may still be linked in your profile. It shows **随手记** in
+the composer and stores data under `~/.dsh/capture`. Its upstream may be missing because that repository was
+replaced.
+
+Check what is installed:
+
+```bash
+cat ~/.dsh/profiles/desktop/node_modules/dsh-quicknote/package.json | grep -A2 repository
+```
+
+To switch from the legacy link to the maintained package:
+
+```bash
+dsh plugin --profile desktop remove dsh-quicknote
+dsh plugin --profile desktop add dsh-quicknote
+```
+
+Restart DSH. The button changes from **随手记** to **记一下**.
+
+Old notes are not moved automatically. The legacy store is `~/.dsh/capture`; the new store is
+`~/.dsh/quicknote`. Copy or migrate the JSON only after backing it up.
+
 ## What `<profile>` means
 
 A DSH **profile** is an isolated set of plugins and settings, stored under `~/.dsh/profiles/<name>`. The desktop app
