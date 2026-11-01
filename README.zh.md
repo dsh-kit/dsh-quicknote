@@ -13,11 +13,13 @@
 
 ## 安装
 
-开发时链接工作副本：
+开发时链接到 CLI/web profile：
 
 ```bash
-dsh plugin --profile <profile> add link:$PWD
+dsh plugin --profile web add link:$PWD
 ```
+
+桌面端请使用应用内插件页；`desktop` profile 由应用管理。
 
 发布后按包名安装：
 
