@@ -31,8 +31,22 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 function Icon({ size = 18 }: { size?: number }) {
   return (
     <svg viewBox="0 0 16 16" width={size} height={size} fill="none" aria-hidden="true">
-      <rect x="2.75" y="2.75" width="10.5" height="10.5" rx="2" stroke="currentColor" />
-      <path d="M5.5 8h5" stroke="currentColor" strokeLinecap="round" />
+      <rect
+        x="2.25"
+        y="2.25"
+        width="11.5"
+        height="11.5"
+        rx="3.1"
+        stroke="currentColor"
+        strokeWidth="1.2"
+      />
+      <path
+        d="M5.1 6.1h5.8M5.1 8.1h5.8M5.1 10.1h3.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      <circle cx="11.4" cy="10.1" r=".8" fill="currentColor" />
     </svg>
   );
 }
