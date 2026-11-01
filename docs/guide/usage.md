@@ -2,7 +2,7 @@
 
 ## From the composer
 
-Click **Note** in the composer toolbar. The card opens with the current draft.
+Click **Quick Note** in the composer toolbar. The card opens with the current draft.
 
 - **Save note**: stores the text and leaves the draft untouched.
 - **Save and clear draft**: stores the text, then clears the composer only after the Host confirms the save.

@@ -5,7 +5,7 @@
 
 Capture a note from the composer, keep it out of the way, and find it again on one page.
 
-- **From the composer**: click **Note** in the composer toolbar. The card opens with the current draft; save it
+- **From the composer**: click **Quick Note** in the composer toolbar. The card opens with the current draft; save it
   as a note, or save and explicitly clear the draft.
 - **From the sidebar**: the Quick Note page lists everything newest-first, with done/reopen and delete.
 - **From an agent**: `quicknote_add`, `quicknote_list`, `quicknote_done`, `quicknote_delete`.

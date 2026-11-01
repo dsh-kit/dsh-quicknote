@@ -30,9 +30,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 function Icon({ size = 18 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 16 16" width={size} height={size} fill="none" aria-hidden="true">
-      <rect x="2.75" y="2.75" width="10.5" height="10.5" rx="2" stroke="currentColor" />
-      <path d="M5.5 8h5" stroke="currentColor" strokeLinecap="round" />
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" aria-hidden="true">
+      <rect x="4" y="3.5" width="16" height="17" rx="3" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M8 8h8M8 12h8M8 16h5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -100,7 +105,17 @@ function Page({ t }: { t: (key: string) => string }) {
   }
 
   return (
-    <div style={{ padding: "24px 28px", maxWidth: 760, font: "inherit" }}>
+    <div
+      style={{
+        boxSizing: "border-box",
+        minHeight: "100%",
+        padding: "24px 28px",
+        maxWidth: 760,
+        background: "var(--dsw-alias-bg-base, transparent)",
+        color: "var(--dsw-alias-label-primary, inherit)",
+        colorScheme: "light dark",
+      }}
+    >
       <h1 style={{ fontSize: 22, margin: 0 }}>{t("panel.title")}</h1>
       <p style={{ margin: "6px 0 18px", color: "var(--dsw-alias-label-secondary)" }}>
         {t("panel.body")}
@@ -117,20 +132,33 @@ function Page({ t }: { t: (key: string) => string }) {
             resize: "vertical",
             padding: 10,
             borderRadius: 8,
-            border: "1px solid var(--dsw-alias-line, #d9dce1)",
+            border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+            background: "var(--dsw-alias-bg-layer-1, transparent)",
+            color: "var(--dsw-alias-label-primary, inherit)",
+            colorScheme: "light dark",
+            font: "inherit",
           }}
         />
         <button
           data-testid="note-add"
           type="submit"
           disabled={text.trim() === ""}
-          style={{ padding: "9px 14px", borderRadius: 8 }}
+          style={{
+            padding: "9px 14px",
+            borderRadius: 8,
+            border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+            background: "var(--dsw-alias-bg-layer-1, transparent)",
+            color: "var(--dsw-alias-label-primary, inherit)",
+            font: "inherit",
+            cursor: text.trim() === "" ? "default" : "pointer",
+            opacity: text.trim() === "" ? 0.5 : 1,
+          }}
         >
           {t("panel.add")}
         </button>
       </form>
       {error === "" ? null : (
-        <p role="alert" style={{ color: "var(--dsw-alias-danger, #c0392b)" }}>
+        <p role="alert" style={{ color: "var(--dsw-alias-state-error-primary, #c0392b)" }}>
           {error}
         </p>
       )}
@@ -149,8 +177,9 @@ function Page({ t }: { t: (key: string) => string }) {
                 gap: 8,
                 alignItems: "center",
                 padding: 12,
-                border: "1px solid var(--dsw-alias-line, #d9dce1)",
+                border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
                 borderRadius: 10,
+                background: "var(--dsw-alias-bg-layer-1, transparent)",
               }}
             >
               <span
@@ -165,14 +194,30 @@ function Page({ t }: { t: (key: string) => string }) {
               <button
                 type="button"
                 onClick={() => void toggle(note)}
-                style={{ padding: "5px 9px", borderRadius: 7 }}
+                style={{
+                  padding: "5px 9px",
+                  borderRadius: 7,
+                  border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+                  background: "var(--dsw-alias-bg-layer-1, transparent)",
+                  color: "var(--dsw-alias-label-primary, inherit)",
+                  font: "inherit",
+                  cursor: "pointer",
+                }}
               >
                 {note.done ? t("panel.reopen") : t("panel.done")}
               </button>
               <button
                 type="button"
                 onClick={() => void remove(note)}
-                style={{ padding: "5px 9px", borderRadius: 7 }}
+                style={{
+                  padding: "5px 9px",
+                  borderRadius: 7,
+                  border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+                  background: "var(--dsw-alias-bg-layer-1, transparent)",
+                  color: "var(--dsw-alias-label-primary, inherit)",
+                  font: "inherit",
+                  cursor: "pointer",
+                }}
               >
                 {t("panel.delete")}
               </button>
@@ -204,7 +249,7 @@ export function apply(ctx: any): void {
           "panel.deleted": "Note deleted.",
           "panel.completed": "Note updated.",
           "panel.undo": "Undo",
-          "toolbar.capture": "Note",
+          "toolbar.capture": "Quick Note",
           "overlay.title": "Save a quick note",
           "overlay.cancel": "Cancel",
           "overlay.save": "Save note",
@@ -223,7 +268,7 @@ export function apply(ctx: any): void {
           "panel.deleted": "笔记已删除。",
           "panel.completed": "笔记已更新。",
           "panel.undo": "撤销",
-          "toolbar.capture": "记一下",
+          "toolbar.capture": "随手记",
           "overlay.title": "保存随手记",
           "overlay.cancel": "取消",
           "overlay.save": "保存笔记",
