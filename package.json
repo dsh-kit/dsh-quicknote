@@ -1,6 +1,6 @@
 {
   "name": "dsh-quicknote",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Capture a note from the DSH composer, keep it out of the way, and manage the list on one page.",
   "license": "MIT",
   "author": "dsh-kit contributors",
@@ -71,7 +71,7 @@
     "type": "git",
     "url": "git+https://github.com/dsh-kit/dsh-quicknote.git"
   },
-  "homepage": "https://github.com/dsh-kit/dsh-quicknote",
+  "homepage": "https://dsh-kit.github.io/dsh-quicknote/",
   "bugs": {
     "url": "https://github.com/dsh-kit/dsh-quicknote/issues"
   }
