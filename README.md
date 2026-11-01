@@ -14,11 +14,13 @@ Capture a note from the composer, keep it out of the way, and find it again on o
 
 ## Install
 
-For development, link the working copy:
+For development, link the working copy into a CLI/web profile:
 
 ```bash
-dsh plugin --profile <profile> add link:$PWD
+dsh plugin --profile web add link:$PWD
 ```
+
+For the desktop app, use the in-app plugin page; the `desktop` profile is app-managed.
 
 A published release installs by package name:
 
