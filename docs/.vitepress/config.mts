@@ -11,13 +11,13 @@ export default defineConfig({
   description: 'Quick notes inside DeepSeek Harness.',
   cleanUrls: false,
   lastUpdated: true,
-  head: [['link', { rel: 'icon', href: `${base}favicon.svg`, type: 'image/svg+xml' }]],
+  head: [['link', { rel: 'icon', href: `${base}icon.svg`, type: 'image/svg+xml' }]],
   locales: {
     root: { label: 'English', lang: 'en' },
     zh: { label: '中文', lang: 'zh-CN', link: '/zh/' }
   },
   themeConfig: {
-    logo: '/logo.svg',
+    logo: '/icon.svg',
     socialLinks: [{ icon: 'github', link: repository }],
     editLink: { pattern: editPattern, text: 'Edit this page on GitHub' },
     search: { provider: 'local' },
