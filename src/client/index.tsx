@@ -41,6 +41,7 @@ function Page({ t }: { t: (key: string) => string }) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
+  const [undo, setUndo] = useState<{ kind: "delete" | "done"; note: Note } | null>(null);
 
   async function load() {
     try {
@@ -57,6 +58,12 @@ function Page({ t }: { t: (key: string) => string }) {
     window.addEventListener("dsh-quicknote:changed", changed);
     return () => window.removeEventListener("dsh-quicknote:changed", changed);
   }, []);
+
+  useEffect(() => {
+    if (!undo) return;
+    const timer = window.setTimeout(() => setUndo(null), 8000);
+    return () => window.clearTimeout(timer);
+  }, [undo]);
 
   async function add(event: FormEvent) {
     event.preventDefault();
@@ -194,6 +201,9 @@ export function apply(ctx: any): void {
           "panel.done": "Done",
           "panel.reopen": "Reopen",
           "panel.delete": "Delete",
+          "panel.deleted": "Note deleted.",
+          "panel.completed": "Note updated.",
+          "panel.undo": "Undo",
           "toolbar.capture": "Note",
           "overlay.title": "Save a quick note",
           "overlay.cancel": "Cancel",
@@ -210,6 +220,9 @@ export function apply(ctx: any): void {
           "panel.done": "完成",
           "panel.reopen": "重新打开",
           "panel.delete": "删除",
+          "panel.deleted": "笔记已删除。",
+          "panel.completed": "笔记已更新。",
+          "panel.undo": "撤销",
           "toolbar.capture": "记一下",
           "overlay.title": "保存随手记",
           "overlay.cancel": "取消",
