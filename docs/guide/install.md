@@ -1,31 +1,79 @@
 # Install
 
-## Requirements
+## The short version
 
-- DeepSeek Harness 0.2.1-rc.5 or newer
-- Node 24+
+1. Open a terminal.
+2. Install into the profile used by the desktop app:
 
-## From the npm package
+   ```bash
+   dsh plugin --profile desktop add dsh-quicknote
+   ```
+
+3. Restart DSH.
+
+You should then see **Quick Note** in the sidebar and **Note** in the composer toolbar.
+
+`desktop` is the profile used by the desktop app. If you use another profile, replace it with that profile's name.
+
+## What `<profile>` means
+
+A DSH **profile** is an isolated set of plugins and settings, stored under `~/.dsh/profiles/<name>`. The desktop app
+uses the profile named `desktop`; the CLI and other apps may use `web`, `tui`, or a profile you created.
+
+To see the profiles on your machine:
 
 ```bash
-dsh plugin --profile <profile> add dsh-quicknote
+ls ~/.dsh/profiles
 ```
 
-## From a local working copy
+Use the same profile where you want the plugin to appear. The `--profile` flag is required by `dsh plugin`; it is
+not a placeholder you should type literally.
+
+## What `link:$PWD` means
+
+`link:$PWD` is only for **local development**:
+
+- `$PWD` is the shell's current directory;
+- `link:` tells DSH to link that directory instead of downloading a package from npm.
+
+So this command must be run **inside the plugin source directory**:
+
+```bash
+cd /path/to/dsh-quicknote
+dsh plugin --profile desktop add link:$PWD
+```
+
+If you are installing the published plugin, do **not** use `link:`. Use the package name:
+
+```bash
+dsh plugin --profile desktop add dsh-quicknote
+```
+
+On Windows PowerShell, use `link:.` or the full path instead of `$PWD`.
+
+## Install from source
+
+Only needed if you are changing the plugin:
 
 ```bash
 pnpm install
 pnpm verify
-dsh plugin --profile <profile> add link:$PWD
+dsh plugin --profile desktop add link:$PWD
 ```
 
-Desktop profiles are app-managed: add `dsh-quicknote` to `dsh.profile.bundles` and the dependency, run
-`pnpm install` in the profile, then restart DSH.
+`pnpm install` installs the plugin's build dependencies. `pnpm verify` runs formatting, lint, type checking, tests,
+the build and a pack check. A normal user installing from npm does not need either command.
 
 ## Verify
 
-```bash
-dsh --profile <profile> --dump-config | grep -A2 "id: dsh-quicknote"
-```
+Open DSH and check:
 
-Open DSH and look for **Quick Note** in the sidebar, or **Note** in the composer toolbar.
+- the sidebar has **Quick Note**;
+- the composer toolbar has **Note**;
+- saving a note and reopening DSH keeps it.
+
+Advanced check:
+
+```bash
+dsh --profile desktop --dump-config | grep -A2 "id: dsh-quicknote"
+```
