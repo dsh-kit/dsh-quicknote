@@ -15,6 +15,35 @@
 
 `desktop` 是桌面端使用的 profile。如果你用的是别的 profile，把它换成对应名字。
 
+## 这是 dsh-kit 的插件吗？
+
+当前维护的版本是：
+
+- npm：`dsh-quicknote`
+- 上游：<https://github.com/dsh-kit/dsh-quicknote>
+- 输入框按钮：英文 **Note**，中文 **记一下**
+- 数据：`~/.dsh/quicknote/notes.json`
+
+如果你之前链接过 `wilsonwangdev/dsh-quicknote` 的旧本地插件，它的输入框按钮是 **随手记**，数据在
+`~/.dsh/capture`。旧上游仓库已经被替换，所以插件管理器里可能显示上游不存在。
+
+查看当前装的是哪个：
+
+```bash
+cat ~/.dsh/profiles/desktop/node_modules/dsh-quicknote/package.json | grep -A2 repository
+```
+
+从旧链接切到维护版本：
+
+```bash
+dsh plugin --profile desktop remove dsh-quicknote
+dsh plugin --profile desktop add dsh-quicknote
+```
+
+重启 DSH，按钮会从 **随手记** 变成 **记一下**。
+
+旧笔记不会自动迁移。旧存储在 `~/.dsh/capture`，新存储在 `~/.dsh/quicknote`；先备份，再按需迁移 JSON。
+
 ## `<profile>` 是什么
 
 DSH 的 **profile** 是一套独立的插件和设置，存放在 `~/.dsh/profiles/<名字>`。桌面端使用名为 `desktop` 的
