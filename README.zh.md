@@ -7,6 +7,10 @@
 - **从 Agent**：`quicknote_add`、`quicknote_list`、`quicknote_done`、`quicknote_delete`。
 - **存储**：`~/.dsh/quicknote/notes.json`，本地、权限 `0600`、原子写入，无遥测。
 
+## 文档
+
+<https://quicknote.dsh-kit.dev/zh/>
+
 ## 安装
 
 开发时链接工作副本：
