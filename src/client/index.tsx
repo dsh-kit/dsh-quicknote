@@ -4,18 +4,19 @@
  * @module dsh-quicknote/client
  */
 import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import type { CSSProperties, FormEvent } from "react";
 
 import { API, NAME, NS } from "../shared/constants.ts";
 import { ComposerButton } from "./ComposerButton.tsx";
 import { Overlay } from "./Overlay.tsx";
-import { setClientContext } from "./session.ts";
+import { insertIntoComposer, setClientContext } from "./session.ts";
 
 interface Note {
   id: string;
   text: string;
   done: boolean;
   createdAt: number;
+  origin?: { sessionId: string; title: string };
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -42,11 +43,38 @@ function Icon({ size = 18 }: { size?: number }) {
   );
 }
 
+function formatTime(value: number): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const now = new Date();
+  const clock = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  if (date.toDateString() === now.toDateString()) return clock;
+  const monthDay = `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  return date.getFullYear() === now.getFullYear()
+    ? `${monthDay} ${clock}`
+    : `${date.getFullYear()}-${monthDay}`;
+}
+
+type Filter = "all" | "open" | "done";
+
+const border = "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))";
+const controlStyle: CSSProperties = {
+  padding: "5px 9px",
+  borderRadius: 7,
+  border,
+  background: "var(--dsw-alias-bg-layer-1, transparent)",
+  color: "var(--dsw-alias-label-primary, inherit)",
+  font: "inherit",
+  cursor: "pointer",
+};
+
 function Page({ t }: { t: (key: string) => string }) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
-  const [undo, setUndo] = useState<{ kind: "delete" | "done"; note: Note } | null>(null);
+  const [notice, setNotice] = useState("");
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
 
   async function load() {
     try {
@@ -65,10 +93,10 @@ function Page({ t }: { t: (key: string) => string }) {
   }, []);
 
   useEffect(() => {
-    if (!undo) return;
-    const timer = window.setTimeout(() => setUndo(null), 8000);
+    if (notice === "") return;
+    const timer = window.setTimeout(() => setNotice(""), 3000);
     return () => window.clearTimeout(timer);
-  }, [undo]);
+  }, [notice]);
 
   async function add(event: FormEvent) {
     event.preventDefault();
@@ -104,6 +132,32 @@ function Page({ t }: { t: (key: string) => string }) {
     }
   }
 
+  async function copy(note: Note) {
+    try {
+      await navigator.clipboard.writeText(note.text);
+      setNotice(t("panel.copied"));
+    } catch {
+      setError(t("panel.copyFailed"));
+    }
+  }
+
+  function insert(note: Note) {
+    setNotice(insertIntoComposer(note.text) ? t("panel.inserted") : t("panel.insertUnavailable"));
+  }
+
+  const needle = query.trim().toLowerCase();
+  const counts = {
+    all: notes.length,
+    open: notes.filter((note) => !note.done).length,
+    done: notes.filter((note) => note.done).length,
+  };
+  const visible = notes.filter((note) => {
+    if (filter === "open" && note.done) return false;
+    if (filter === "done" && !note.done) return false;
+    if (needle === "") return true;
+    return note.text.toLowerCase().includes(needle);
+  });
+
   return (
     <div
       style={{
@@ -132,7 +186,7 @@ function Page({ t }: { t: (key: string) => string }) {
             resize: "vertical",
             padding: 10,
             borderRadius: 8,
-            border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+            border,
             background: "var(--dsw-alias-bg-layer-1, transparent)",
             color: "var(--dsw-alias-label-primary, inherit)",
             colorScheme: "light dark",
@@ -146,7 +200,7 @@ function Page({ t }: { t: (key: string) => string }) {
           style={{
             padding: "9px 14px",
             borderRadius: 8,
-            border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+            border,
             background: "var(--dsw-alias-bg-layer-1, transparent)",
             color: "var(--dsw-alias-label-primary, inherit)",
             font: "inherit",
@@ -157,70 +211,128 @@ function Page({ t }: { t: (key: string) => string }) {
           {t("panel.add")}
         </button>
       </form>
+      {notes.length === 0 ? null : (
+        <div
+          style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 14 }}
+        >
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {(
+              [
+                ["all", "panel.filterAll"],
+                ["open", "panel.filterOpen"],
+                ["done", "panel.filterDone"],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                aria-pressed={filter === id}
+                onClick={() => setFilter(id)}
+                style={{
+                  ...controlStyle,
+                  borderColor:
+                    filter === id
+                      ? "var(--dsw-alias-brand-primary, currentColor)"
+                      : "var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+                  color:
+                    filter === id
+                      ? "var(--dsw-alias-brand-primary, currentColor)"
+                      : "var(--dsw-alias-label-secondary, inherit)",
+                }}
+              >
+                {t(label)} {counts[id]}
+              </button>
+            ))}
+          </div>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t("panel.search")}
+            aria-label={t("panel.search")}
+            style={{
+              flex: 1,
+              minWidth: 160,
+              padding: "5px 9px",
+              borderRadius: 7,
+              border,
+              background: "var(--dsw-alias-bg-layer-1, transparent)",
+              color: "var(--dsw-alias-label-primary, inherit)",
+              font: "inherit",
+            }}
+          />
+        </div>
+      )}
       {error === "" ? null : (
         <p role="alert" style={{ color: "var(--dsw-alias-state-error-primary, #c0392b)" }}>
           {error}
+        </p>
+      )}
+      {notice === "" ? null : (
+        <p role="status" style={{ color: "var(--dsw-alias-label-secondary)", margin: "8px 0 0" }}>
+          {notice}
         </p>
       )}
       {notes.length === 0 ? (
         <p style={{ marginTop: 24, color: "var(--dsw-alias-label-secondary)" }}>
           {t("panel.empty")}
         </p>
+      ) : visible.length === 0 ? (
+        <p style={{ marginTop: 24, color: "var(--dsw-alias-label-secondary)" }}>
+          {t("panel.noMatches")}
+        </p>
       ) : (
         <ul style={{ listStyle: "none", padding: 0, margin: "24px 0 0", display: "grid", gap: 8 }}>
-          {notes.map((note) => (
+          {visible.map((note) => (
             <li
               key={note.id}
               data-testid="note-item"
               style={{
                 display: "flex",
                 gap: 8,
-                alignItems: "center",
+                alignItems: "flex-start",
                 padding: 12,
-                border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
+                border,
                 borderRadius: 10,
                 background: "var(--dsw-alias-bg-layer-1, transparent)",
               }}
             >
-              <span
-                style={{
-                  flex: 1,
-                  textDecoration: note.done ? "line-through" : "none",
-                  opacity: note.done ? 0.6 : 1,
-                }}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    textDecoration: note.done ? "line-through" : "none",
+                    opacity: note.done ? 0.6 : 1,
+                  }}
+                >
+                  {note.text}
+                </div>
+                <div
+                  style={{ marginTop: 4, fontSize: 11, color: "var(--dsw-alias-label-tertiary)" }}
+                >
+                  <time dateTime={new Date(note.createdAt).toISOString()}>
+                    {formatTime(note.createdAt)}
+                  </time>
+                  {note.origin?.title ? ` · ${note.origin.title}` : ""}
+                </div>
+              </div>
+              <div
+                style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}
               >
-                {note.text}
-              </span>
-              <button
-                type="button"
-                onClick={() => void toggle(note)}
-                style={{
-                  padding: "5px 9px",
-                  borderRadius: 7,
-                  border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
-                  background: "var(--dsw-alias-bg-layer-1, transparent)",
-                  color: "var(--dsw-alias-label-primary, inherit)",
-                  font: "inherit",
-                  cursor: "pointer",
-                }}
-              >
-                {note.done ? t("panel.reopen") : t("panel.done")}
-              </button>
-              <button
-                type="button"
-                onClick={() => void remove(note)}
-                style={{
-                  padding: "5px 9px",
-                  borderRadius: 7,
-                  border: "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
-                  background: "var(--dsw-alias-bg-layer-1, transparent)",
-                  color: "var(--dsw-alias-label-primary, inherit)",
-                  font: "inherit",
-                  cursor: "pointer",
-                }}
-              >
-                {t("panel.delete")}
-              </button>
+                <button type="button" onClick={() => void copy(note)} style={controlStyle}>
+                  {t("panel.copy")}
+                </button>
+                <button type="button" onClick={() => insert(note)} style={controlStyle}>
+                  {t("panel.insert")}
+                </button>
+                <button type="button" onClick={() => void toggle(note)} style={controlStyle}>
+                  {note.done ? t("panel.reopen") : t("panel.done")}
+                </button>
+                <button type="button" onClick={() => void remove(note)} style={controlStyle}>
+                  {t("panel.delete")}
+                </button>
+              </div>
             </li>
           ))}
         </ul>
@@ -243,6 +355,17 @@ export function apply(ctx: any): void {
           "panel.placeholder": "Write a note…",
           "panel.add": "Add note",
           "panel.empty": "No notes yet.",
+          "panel.noMatches": "No matching notes.",
+          "panel.search": "Search notes",
+          "panel.filterAll": "All",
+          "panel.filterOpen": "Open",
+          "panel.filterDone": "Done",
+          "panel.copy": "Copy",
+          "panel.copied": "Copied.",
+          "panel.copyFailed": "Could not copy this note.",
+          "panel.insert": "Insert",
+          "panel.inserted": "Inserted into the draft.",
+          "panel.insertUnavailable": "No composer is open.",
           "panel.done": "Done",
           "panel.reopen": "Reopen",
           "panel.delete": "Delete",
@@ -262,6 +385,17 @@ export function apply(ctx: any): void {
           "panel.placeholder": "写一条笔记…",
           "panel.add": "添加",
           "panel.empty": "还没有笔记。",
+          "panel.noMatches": "没有匹配的笔记。",
+          "panel.search": "搜索笔记",
+          "panel.filterAll": "全部",
+          "panel.filterOpen": "未完成",
+          "panel.filterDone": "已完成",
+          "panel.copy": "复制",
+          "panel.copied": "已复制。",
+          "panel.copyFailed": "复制失败。",
+          "panel.insert": "插入",
+          "panel.inserted": "已插入草稿。",
+          "panel.insertUnavailable": "当前没有可用的输入框。",
           "panel.done": "完成",
           "panel.reopen": "重新打开",
           "panel.delete": "删除",

@@ -36,3 +36,34 @@ export function draftOf(sessionId: string | undefined): string {
     return "";
   }
 }
+
+/** The composer the user is most likely writing in. */
+export function focusedSessionId(): string | undefined {
+  try {
+    const fromFocus = sessionIdNear(document.activeElement);
+    if (fromFocus !== undefined) return fromFocus;
+  } catch {
+    // Fall back to a mounted conversation below.
+  }
+  try {
+    const mounted = document.querySelector("[data-conversation-session]");
+    return sessionIdNear(mounted);
+  } catch {
+    return undefined;
+  }
+}
+
+/** Insert a note into the active draft, preserving anything already typed. */
+export function insertIntoComposer(text: string): boolean {
+  const sessionId = focusedSessionId();
+  const composer = composerOf(sessionId);
+  if (!composer || !sessionId) return false;
+  try {
+    const current = draftOf(sessionId);
+    const next = current.trim() === "" ? text : `${current.replace(/\s+$/, "")}\n\n${text}`;
+    composer.actions.setDraft(next);
+    return true;
+  } catch {
+    return false;
+  }
+}
