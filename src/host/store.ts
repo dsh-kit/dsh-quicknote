@@ -2,14 +2,28 @@ import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
+export interface NoteOrigin {
+  sessionId: string;
+  title: string;
+}
+
 export interface Note {
   id: string;
   text: string;
   done: boolean;
   createdAt: number;
+  origin?: NoteOrigin;
 }
 
 const MAX_TEXT = 20_000;
+
+function parseOrigin(value: unknown): NoteOrigin | undefined {
+  if (value === null || typeof value !== "object") return undefined;
+  const sessionId = String((value as NoteOrigin).sessionId ?? "");
+  const title = String((value as NoteOrigin).title ?? "");
+  if (sessionId === "" && title === "") return undefined;
+  return { sessionId, title };
+}
 
 /** A small durable store: one JSON file, atomic whole-file writes, newest first. */
 export function createStore(file: string) {
@@ -49,11 +63,13 @@ export function createStore(file: string) {
     async list(): Promise<Note[]> {
       return [...(await load())];
     },
-    async add(text: string): Promise<Note> {
+    async add(text: string, origin?: unknown): Promise<Note> {
       const value = String(text ?? "").trim();
       if (value === "") throw new Error("empty-note");
       if (value.length > MAX_TEXT) throw new Error("note-too-long");
       const note: Note = { id: randomUUID(), text: value, done: false, createdAt: Date.now() };
+      const cleanOrigin = parseOrigin(origin);
+      if (cleanOrigin) note.origin = cleanOrigin;
       await save([note, ...(await load())]);
       return note;
     },

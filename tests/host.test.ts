@@ -28,6 +28,13 @@ describe("quicknote store", () => {
     expect((await notes.list()).map((note) => note.id)).toEqual([first.id]);
   });
 
+  it("keeps capture provenance when supplied", async () => {
+    const notes = await store();
+    const note = await notes.add("from a session", { sessionId: "session-1", title: "Planning" });
+    expect(note.origin).toEqual({ sessionId: "session-1", title: "Planning" });
+    expect((await notes.list())[0].origin).toEqual({ sessionId: "session-1", title: "Planning" });
+  });
+
   it("rejects empty notes", async () => {
     const notes = await store();
     await expect(notes.add("   ")).rejects.toThrow("empty-note");

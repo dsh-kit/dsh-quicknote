@@ -5,6 +5,8 @@
 - Restore dark-mode styling with the DSH theme tokens
 - Restore the notebook icon and use Quick Note / 随手记 consistently in the composer
 - Add search, All/Open/Done filters, timestamps, copy and insert actions
+- Record the source Session on captured notes
+- Show a parked-draft receipt with undo after “save and clear draft”
 - Package homepage now points to the plugin documentation, not the GitHub repository
 
 ## 0.1.0
