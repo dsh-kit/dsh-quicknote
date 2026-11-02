@@ -92,3 +92,11 @@ export function openPanel(): void {
     // The layout service is optional during early boot.
   }
 }
+
+/** Open the capture card for the active composer. */
+export function openCapture(): void {
+  const sessionId = focusedSessionId();
+  window.dispatchEvent(
+    new CustomEvent("dsh-quicknote:open", { detail: { sessionId, text: draftOf(sessionId) } }),
+  );
+}
