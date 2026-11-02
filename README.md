@@ -7,7 +7,7 @@ Capture a note from the composer, keep it out of the way, and find it again on o
 
 - **From the composer**: click **Quick Note** in the composer toolbar. The card opens with the current draft; save it
   as a note, or save and explicitly clear the draft.
-- **From the sidebar**: the Quick Note page lists everything newest-first, with done/reopen and delete.
+- **From the sidebar**: search, filter All/Open/Done, copy, insert into the active draft, and mark done or delete.
 - **From an agent**: `quicknote_add`, `quicknote_list`, `quicknote_done`, `quicknote_delete`.
 - **Storage**: `~/.dsh/quicknote/notes.json` — local, mode `0600`, atomic writes. No telemetry.
 
@@ -25,19 +25,18 @@ dsh plugin --profile web add link:$PWD
 
 For the desktop app, use the in-app plugin page; the `desktop` profile is app-managed.
 
-A published release installs by package name:
+A published release installs by package name into a CLI/web profile:
 
 ```bash
-dsh plugin --profile <profile> add dsh-quicknote
+dsh plugin --profile web add dsh-quicknote
 ```
 
-Desktop profiles are managed by the app: add `dsh-quicknote` to `dsh.profile.bundles` and the dependency, run
-`pnpm install` in the profile, then restart DSH.
+For the desktop app, use its plugin page; the `desktop` profile is app-managed.
 
 ## Verify
 
 ```bash
-dsh --profile <profile> --dump-config | grep -A2 "id: dsh-quicknote"
+dsh --profile web --dump-config | grep -A2 "id: dsh-quicknote"
 ```
 
 ## Develop

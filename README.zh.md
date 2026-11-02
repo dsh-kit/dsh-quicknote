@@ -6,7 +6,7 @@
 从输入框随手记下一条，不打断当前对话，之后在一页里找回。
 
 - **从输入框**：点击工具栏的 **随手记**；卡片会带上当前草稿。可以只保存笔记，也可以显式选择“保存并清空输入框”。
-- **从侧栏**：随手记页面按时间倒序列出全部笔记，可完成、重新打开、删除。
+- **从侧栏**：随手记页面支持搜索、全部/未完成/已完成筛选、复制、插入当前草稿，以及完成或删除。
 - **从 Agent**：`quicknote_add`、`quicknote_list`、`quicknote_done`、`quicknote_delete`。
 - **存储**：`~/.dsh/quicknote/notes.json`，本地、权限 `0600`、原子写入，无遥测。
 
@@ -24,18 +24,18 @@ dsh plugin --profile web add link:$PWD
 
 桌面端请使用应用内插件页；`desktop` profile 由应用管理。
 
-发布后按包名安装：
+发布后按包名安装到 CLI/web profile：
 
 ```bash
-dsh plugin --profile <profile> add dsh-quicknote
+dsh plugin --profile web add dsh-quicknote
 ```
 
-桌面 profile 由应用托管：把 `dsh-quicknote` 加进 `dsh.profile.bundles` 与依赖，在 profile 里执行 `pnpm install`，重启 DSH。
+桌面端请使用应用内插件页；`desktop` profile 由应用管理。
 
 ## 验证
 
 ```bash
-dsh --profile <profile> --dump-config | grep -A2 "id: dsh-quicknote"
+dsh --profile web --dump-config | grep -A2 "id: dsh-quicknote"
 ```
 
 ## 开发

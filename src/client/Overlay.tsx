@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 
 import { API } from "../shared/constants.ts";
-import { composerOf } from "./session.ts";
+import { setParked } from "./parked.ts";
+import { composerOf, originOf } from "./session.ts";
 
 interface OpenDetail {
   sessionId?: string;
@@ -13,6 +14,7 @@ export function Overlay({ t }: { t: (key: string) => string }) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [sessionId, setSessionId] = useState<string | undefined>(undefined);
+  const [draftText, setDraftText] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -20,6 +22,7 @@ export function Overlay({ t }: { t: (key: string) => string }) {
     const onOpen = (event: Event) => {
       const detail = (event as CustomEvent<OpenDetail>).detail;
       setText(detail?.text ?? "");
+      setDraftText(detail?.text ?? "");
       setSessionId(detail?.sessionId);
       setError("");
       setOpen(true);
@@ -45,11 +48,21 @@ export function Overlay({ t }: { t: (key: string) => string }) {
       const response = await fetch(`${API}/notes/create`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, origin: originOf(sessionId) }),
       });
-      const result = (await response.json()) as { ok?: boolean; error?: string };
+      const result = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        note?: { id: string };
+      };
       if (!response.ok || !result.ok) throw new Error(result.error ?? "save-failed");
-      if (clearDraft && sessionId !== undefined) {
+      if (clearDraft && sessionId !== undefined && result.note?.id) {
+        setParked({
+          noteId: result.note.id,
+          text,
+          draftText,
+          sessionId,
+        });
         try {
           composerOf(sessionId)?.actions.setDraft("");
         } catch {

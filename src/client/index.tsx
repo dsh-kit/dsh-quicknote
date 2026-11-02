@@ -9,7 +9,8 @@ import type { CSSProperties, FormEvent } from "react";
 import { API, NAME, NS } from "../shared/constants.ts";
 import { ComposerButton } from "./ComposerButton.tsx";
 import { Overlay } from "./Overlay.tsx";
-import { insertIntoComposer, setClientContext } from "./session.ts";
+import { focusedSessionId, insertIntoComposer, originOf, setClientContext } from "./session.ts";
+import { ParkedBar } from "./ParkedBar.tsx";
 
 interface Note {
   id: string;
@@ -102,7 +103,10 @@ function Page({ t }: { t: (key: string) => string }) {
     event.preventDefault();
     if (text.trim() === "") return;
     try {
-      await request("/notes/create", { method: "POST", body: JSON.stringify({ text }) });
+      await request("/notes/create", {
+        method: "POST",
+        body: JSON.stringify({ text, origin: originOf(focusedSessionId()) }),
+      });
       setText("");
       setError("");
       await load();
@@ -378,6 +382,10 @@ export function apply(ctx: any): void {
           "overlay.save": "Save note",
           "overlay.saveClear": "Save and clear draft",
           "overlay.empty": "Nothing to save.",
+          "parked.saved": "Moved into Quick Note",
+          "parked.open": "Open the list",
+          "parked.undo": "Undo",
+          "parked.dismiss": "Dismiss",
         },
         zh: {
           "panel.title": "随手记",
@@ -408,6 +416,10 @@ export function apply(ctx: any): void {
           "overlay.save": "保存笔记",
           "overlay.saveClear": "保存并清空输入框",
           "overlay.empty": "没有可保存的内容。",
+          "parked.saved": "已收进随手记",
+          "parked.open": "打开列表",
+          "parked.undo": "撤销",
+          "parked.dismiss": "关闭提示",
         },
       }),
     `${NAME}: dictionaries`,
@@ -431,6 +443,18 @@ export function apply(ctx: any): void {
     ctx.slots.register(
       { name: "conversation.input.left", id: "quicknote.toolbar", order: 10, locale: NS },
       ComposerButton,
+    ),
+  );
+  ctx.slots.inject("conversation.input.dock", () =>
+    ctx.slots.register(
+      {
+        name: "conversation.input.dock",
+        id: "quicknote.parked",
+        order: 20,
+        locale: NS,
+        inject: (sessionId: string) => ({ captureSessionId: sessionId }),
+      },
+      ParkedBar,
     ),
   );
   ctx.slots.inject("shell.overlay", () =>

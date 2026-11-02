@@ -53,9 +53,10 @@ export function registerRoutes(
       {
         path: `${API}/notes/create`,
         methods: ["POST"],
-        fetch: wrap(async (request) =>
-          json(200, { ok: true, note: await store.add((await body(request)).text) }),
-        ),
+        fetch: wrap(async (request) => {
+          const input = await body(request);
+          return json(200, { ok: true, note: await store.add(input.text, input.origin) });
+        }),
       },
       {
         path: `${API}/notes/update`,
