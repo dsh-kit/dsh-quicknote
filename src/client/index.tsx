@@ -9,7 +9,13 @@ import type { CSSProperties, FormEvent } from "react";
 import { API, NAME, NS } from "../shared/constants.ts";
 import { ComposerButton } from "./ComposerButton.tsx";
 import { Overlay } from "./Overlay.tsx";
-import { focusedSessionId, insertIntoComposer, originOf, setClientContext } from "./session.ts";
+import {
+  focusedSessionId,
+  insertIntoComposer,
+  openCapture,
+  originOf,
+  setClientContext,
+} from "./session.ts";
 import { ParkedBar } from "./ParkedBar.tsx";
 
 interface Note {
@@ -54,6 +60,17 @@ function formatTime(value: number): string {
   return date.getFullYear() === now.getFullYear()
     ? `${monthDay} ${clock}`
     : `${date.getFullYear()}-${monthDay}`;
+}
+
+function notesToMarkdown(notes: Note[], t: (key: string) => string): string {
+  if (notes.length === 0) return "";
+  const lines = [`# ${t("panel.title")}`, ""];
+  for (const note of notes) {
+    lines.push(`- [${note.done ? "x" : " "}] ${note.text.replace(/\n/g, "\n  ")}`);
+    lines.push(`  <sub>${formatTime(note.createdAt)}</sub>`);
+    lines.push("");
+  }
+  return lines.join("\n");
 }
 
 type Filter = "all" | "open" | "done";
@@ -140,6 +157,15 @@ function Page({ t }: { t: (key: string) => string }) {
     try {
       await navigator.clipboard.writeText(note.text);
       setNotice(t("panel.copied"));
+    } catch {
+      setError(t("panel.copyFailed"));
+    }
+  }
+
+  async function copyAll() {
+    try {
+      await navigator.clipboard.writeText(notesToMarkdown(notes, t));
+      setNotice(t("panel.copyAllDone"));
     } catch {
       setError(t("panel.copyFailed"));
     }
@@ -265,6 +291,9 @@ function Page({ t }: { t: (key: string) => string }) {
               font: "inherit",
             }}
           />
+          <button type="button" onClick={() => void copyAll()} style={controlStyle}>
+            {t("panel.copyAll")}
+          </button>
         </div>
       )}
       {error === "" ? null : (
@@ -367,6 +396,8 @@ export function apply(ctx: any): void {
           "panel.copy": "Copy",
           "panel.copied": "Copied.",
           "panel.copyFailed": "Could not copy this note.",
+          "panel.copyAll": "Copy all",
+          "panel.copyAllDone": "Copied all notes as Markdown.",
           "panel.insert": "Insert",
           "panel.inserted": "Inserted into the draft.",
           "panel.insertUnavailable": "No composer is open.",
@@ -386,6 +417,7 @@ export function apply(ctx: any): void {
           "parked.open": "Open the list",
           "parked.undo": "Undo",
           "parked.dismiss": "Dismiss",
+          "shortcut.open": "Open Quick Note",
         },
         zh: {
           "panel.title": "随手记",
@@ -401,6 +433,8 @@ export function apply(ctx: any): void {
           "panel.copy": "复制",
           "panel.copied": "已复制。",
           "panel.copyFailed": "复制失败。",
+          "panel.copyAll": "复制全部",
+          "panel.copyAllDone": "已复制全部笔记为 Markdown。",
           "panel.insert": "插入",
           "panel.inserted": "已插入草稿。",
           "panel.insertUnavailable": "当前没有可用的输入框。",
@@ -420,6 +454,7 @@ export function apply(ctx: any): void {
           "parked.open": "打开列表",
           "parked.undo": "撤销",
           "parked.dismiss": "关闭提示",
+          "shortcut.open": "打开随手记",
         },
       }),
     `${NAME}: dictionaries`,
@@ -463,4 +498,33 @@ export function apply(ctx: any): void {
       Overlay,
     ),
   );
+
+  if (typeof ctx.inject !== "function") return;
+  ctx.inject(["shortcuts"], (scope: any) => {
+    let shortcuts: any;
+    try {
+      shortcuts = scope.get("shortcuts");
+    } catch {
+      return;
+    }
+    if (typeof shortcuts?.register !== "function") return;
+    scope.effect(() => {
+      const binding = { code: "KeyS", modifiers: ["primary", "alt"] };
+      return shortcuts.register({
+        id: "quicknote.open",
+        label: () => ctx.locale.bind(NS)("shortcut.open"),
+        aliases: ["capture", "note", "quicknote", "随手记", "备忘"],
+        defaults: {
+          "desktop:macos": binding,
+          "desktop:windows": binding,
+          "desktop:linux": binding,
+          "web:macos": binding,
+          "web:windows": binding,
+        },
+        regions: ["page", "editable", "terminal"],
+        modals: [],
+        resolve: () => ({ status: "handled", run: openCapture }),
+      });
+    }, "dsh-quicknote: shortcut");
+  });
 }

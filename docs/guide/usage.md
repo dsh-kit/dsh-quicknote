@@ -13,7 +13,8 @@ Closing the card without saving does nothing.
 ## From the sidebar
 
 **Quick Note** lists notes newest-first. Use **All / Open / Done** and the search box to narrow the list. Each row
-shows its time and can be copied, inserted into the active composer, marked done/reopened, or deleted. Deleting is
+shows its time and can be copied, inserted into the active composer, marked done/reopened, or deleted. **Copy all**
+exports the visible list as Markdown. Press `primary+alt+S` to open the capture card. Deleting is
 immediate and permanent; the list is local to your DSH home.
 
 ## From an agent

@@ -1,17 +1,11 @@
-import { sessionIdNear, draftOf } from "./session.ts";
+import { openCapture } from "./session.ts";
 
 /** A labelled button in the composer toolbar. No icon-only destructive control. */
 export function ComposerButton({ t }: { t: (key: string) => string }) {
-  function open(event: any) {
-    const sessionId = sessionIdNear(event.currentTarget);
-    window.dispatchEvent(
-      new CustomEvent("dsh-quicknote:open", { detail: { sessionId, text: draftOf(sessionId) } }),
-    );
-  }
   return (
     <button
       type="button"
-      onClick={open}
+      onClick={openCapture}
       data-testid="quicknote-composer"
       style={{
         display: "inline-flex",
