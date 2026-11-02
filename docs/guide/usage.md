@@ -11,8 +11,9 @@ Closing the card without saving does nothing.
 
 ## From the sidebar
 
-**Quick Note** lists notes newest-first. Each row can be marked done/reopened or deleted. Deleting is immediate
-and permanent; the list is local to your DSH home.
+**Quick Note** lists notes newest-first. Use **All / Open / Done** and the search box to narrow the list. Each row
+shows its time and can be copied, inserted into the active composer, marked done/reopened, or deleted. Deleting is
+immediate and permanent; the list is local to your DSH home.
 
 ## From an agent
 

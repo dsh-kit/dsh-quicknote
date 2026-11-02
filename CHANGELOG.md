@@ -2,8 +2,10 @@
 
 ## 0.1.1
 
+- Restore dark-mode styling with the DSH theme tokens
+- Restore the notebook icon and use Quick Note / 随手记 consistently in the composer
+- Add search, All/Open/Done filters, timestamps, copy and insert actions
 - Package homepage now points to the plugin documentation, not the GitHub repository
-- No runtime behavior changes
 
 ## 0.1.0
 
