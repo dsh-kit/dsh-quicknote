@@ -24,7 +24,7 @@ verbatim.
 ## Row actions
 
 Each row shows its time, its source Session when captured from the composer, and its tags. It can be copied, inserted
-into the active composer, marked done/reopened, or deleted. Deleting removes the note and shows an undo toast; press
+into the current Session's draft — even while this page covers the conversation — marked done/reopened, or deleted. Deleting removes the note and shows an undo toast; press
 **Undo** before it closes to restore the note unchanged. Deleting more notes before it closes adds them to the same
 toast, where **Undo all** restores the whole batch. **Copy all** exports the visible notes as Markdown. Press
 `primary+alt+S` to open the capture card. The list is local to your DSH home, and narrow windows stack the row actions

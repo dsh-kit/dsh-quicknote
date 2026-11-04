@@ -9,6 +9,7 @@
 - Record the source Session on captured notes
 - Show a parked-draft receipt with undo after “save and clear draft”
 - Make delete reversible with an undo toast, including batch undo
+- Insert a note into the current Session even while the page covers the conversation
 - Serialize note-store writes so overlapping requests cannot corrupt the JSON file
 - Stack note actions under the text in narrow windows so labels no longer wrap
 

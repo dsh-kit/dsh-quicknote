@@ -10,6 +10,7 @@
 - Show a parked-draft receipt with undo after “save and clear draft”
 - Parse `#tag` in notes and filter the list by tag
 - Make delete reversible with an undo toast, including batch undo
+- Insert a note into the current Session even while the page covers the conversation
 - Serialize note-store writes so overlapping requests cannot corrupt the JSON file
 - Stack note actions under the text in narrow windows so labels no longer wrap
 - Package homepage now points to the plugin documentation, not the GitHub repository

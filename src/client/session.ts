@@ -55,9 +55,43 @@ export function focusedSessionId(): string | undefined {
   }
 }
 
+/**
+ * The Session the main column points at, even while a global panel covers it.
+ * The shell unmounts the Conversation for a panel, so the DOM carries no
+ * `data-conversation-session`; the workspace selection and the retained
+ * main-view reference still name it.
+ */
+export function mainSessionId(): string | undefined {
+  try {
+    const selected = clientCtx?.get?.("uiWorkspace")?.selection?.getSnapshot?.()?.sessionId;
+    if (typeof selected === "string" && selected !== "") return selected;
+  } catch {
+    // An older shell may not expose uiWorkspace; try the retention snapshot.
+  }
+  try {
+    const byId = clientCtx?.sessions?.list?.getSnapshot?.()?.byId ?? {};
+    for (const row of Object.values(byId) as Array<{
+      id?: unknown;
+      retainedBy?: { mainView?: number };
+    }>) {
+      if ((row?.retainedBy?.mainView ?? 0) > 0 && typeof row?.id === "string" && row.id !== "") {
+        return row.id;
+      }
+    }
+  } catch {
+    // No Session is known yet.
+  }
+  return undefined;
+}
+
+/** The composer to act on: the focused one, else the Session the main column retained. */
+export function targetSessionId(): string | undefined {
+  return focusedSessionId() ?? mainSessionId();
+}
+
 /** Insert a note into the active draft, preserving anything already typed. */
 export function insertIntoComposer(text: string): boolean {
-  const sessionId = focusedSessionId();
+  const sessionId = targetSessionId();
   const composer = composerOf(sessionId);
   if (!composer || !sessionId) return false;
   try {
