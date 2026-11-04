@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 
 import { API } from "../shared/constants.ts";
+import { stashCaptureText, takeCaptureText } from "./capture.ts";
 import { setParked } from "./parked.ts";
-import { composerOf, originOf } from "./session.ts";
+import { composerOf, openPanel, originOf } from "./session.ts";
 
 interface OpenDetail {
   sessionId?: string;
@@ -17,19 +18,45 @@ export function Overlay({ t }: { t: (key: string) => string }) {
   const [draftText, setDraftText] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [total, setTotal] = useState<number | null>(null);
 
   useEffect(() => {
     const onOpen = (event: Event) => {
       const detail = (event as CustomEvent<OpenDetail>).detail;
-      setText(detail?.text ?? "");
-      setDraftText(detail?.text ?? "");
+      const draft = detail?.text ?? "";
+      setText(takeCaptureText(detail?.sessionId, draft));
+      setDraftText(draft);
       setSessionId(detail?.sessionId);
       setError("");
+      setTotal(null);
       setOpen(true);
+      void refreshTotal();
     };
     window.addEventListener("dsh-quicknote:open", onOpen);
     return () => window.removeEventListener("dsh-quicknote:open", onOpen);
   }, []);
+
+  /** The count is decoration for the link; a failed read just hides it. */
+  async function refreshTotal() {
+    try {
+      const response = await fetch(`${API}/notes`);
+      if (!response.ok) return;
+      const data = (await response.json()) as { notes?: unknown[] };
+      if (Array.isArray(data.notes)) setTotal(data.notes.length);
+    } catch {
+      // Leave the label without a count.
+    }
+  }
+
+  /** Leave the card for the notes page, keeping what the user typed for the next open. */
+  function viewAll() {
+    if (!openPanel()) {
+      setError(t("overlay.openFailed"));
+      return;
+    }
+    stashCaptureText(sessionId, text);
+    setOpen(false);
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -106,7 +133,35 @@ export function Overlay({ t }: { t: (key: string) => string }) {
           colorScheme: "light dark",
         }}
       >
-        <h2 style={{ margin: 0, fontSize: 18 }}>{t("overlay.title")}</h2>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "baseline",
+            justifyContent: "space-between",
+            gap: 12,
+          }}
+        >
+          <h2 style={{ margin: 0, fontSize: 18 }}>{t("overlay.title")}</h2>
+          <button
+            type="button"
+            data-testid="quicknote-overlay-view-all"
+            onClick={viewAll}
+            style={{
+              padding: 0,
+              border: 0,
+              background: "none",
+              color: "var(--dsw-alias-brand-primary, #4d6bfe)",
+              font: "inherit",
+              fontSize: 13,
+              whiteSpace: "nowrap",
+              cursor: "pointer",
+            }}
+          >
+            {total === null
+              ? t("overlay.viewAll")
+              : t("overlay.viewAllCount").replace("{count}", String(total))}
+          </button>
+        </div>
         <textarea
           data-testid="quicknote-overlay-input"
           autoFocus

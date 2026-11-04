@@ -73,8 +73,22 @@ export function registerRoutes(
         path: `${API}/notes/delete`,
         methods: ["POST"],
         fetch: wrap(async (request) =>
-          json(200, { ok: true, removed: await store.remove((await body(request)).id) }),
+          json(200, { ok: true, note: await store.remove((await body(request)).id) }),
         ),
+      },
+      {
+        path: `${API}/notes/restore`,
+        methods: ["POST"],
+        fetch: wrap(async (request) => {
+          try {
+            return json(200, { ok: true, note: await store.restore((await body(request)).note) });
+          } catch (error) {
+            if (String((error as Error)?.message) === "invalid-note") {
+              throw new HttpError(400, "invalid-note");
+            }
+            throw error;
+          }
+        }),
       },
     ];
     for (const route of routes) {

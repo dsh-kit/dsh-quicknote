@@ -28,3 +28,5 @@
 - Package: dsh-quicknote
 - Patch row: `dsh-quicknote`
 - Client module id: `dsh-quicknote`
+- Storage: `~/.dsh/quicknote/notes.json`
+- Routes: `/api/quicknote/notes`, `/create`, `/update`, `/delete`, `/restore`
