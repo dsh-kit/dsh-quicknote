@@ -14,9 +14,11 @@ import { Overlay } from "./Overlay.tsx";
 import {
   focusedSessionId,
   insertIntoComposer,
+  mainSessionId,
   openCapture,
   originOf,
   setClientContext,
+  showConversation,
 } from "./session.ts";
 import { ParkedBar } from "./ParkedBar.tsx";
 import { PAGE_CSS } from "./styles.ts";
@@ -173,6 +175,11 @@ function Page({ t }: { t: (key: string) => string }) {
     if (!tags.some((entry) => entry.tag.toLowerCase() === wanted)) setTag(null);
   }, [tag, tags]);
 
+  const mainId = mainSessionId();
+  const mainTitle = mainId === undefined ? "" : originOf(mainId).title;
+  const backHint =
+    mainTitle === "" ? t("panel.back") : t("panel.backTo").replace("{title}", mainTitle);
+
   const needle = query.trim().toLowerCase();
   const counts = {
     all: notes.length,
@@ -198,6 +205,19 @@ function Page({ t }: { t: (key: string) => string }) {
     <>
       <style data-dsh-quicknote="">{PAGE_CSS}</style>
       <div className="qn-page">
+        {mainId === undefined ? null : (
+          <button
+            type="button"
+            className="qn-back"
+            data-testid="note-back"
+            title={backHint}
+            onClick={() => {
+              if (!showConversation()) setError(t("panel.backFailed"));
+            }}
+          >
+            ← {backHint}
+          </button>
+        )}
         <h1 className="qn-title">{t("panel.title")}</h1>
         <p className="qn-lede">{t("panel.body")}</p>
         <form className="qn-compose" onSubmit={add}>
@@ -391,6 +411,9 @@ export function apply(ctx: any): void {
       ctx.locale.register(NS, {
         en: {
           "panel.title": "Quick Note",
+          "panel.back": "Back to conversation",
+          "panel.backTo": "Back to {title}",
+          "panel.backFailed": "Could not open the conversation. Pick a Session in the sidebar.",
           "panel.body": "Capture a note, mark it done, keep the list on one page.",
           "panel.placeholder": "Write a note… Use #tags to group it.",
           "panel.add": "Add note",
@@ -440,6 +463,9 @@ export function apply(ctx: any): void {
         },
         zh: {
           "panel.title": "随手记",
+          "panel.back": "返回对话",
+          "panel.backTo": "返回「{title}」",
+          "panel.backFailed": "打不开对话，请从左侧栏选择会话。",
           "panel.body": "记下一条笔记，标记完成，在一页里管理。",
           "panel.placeholder": "写一条笔记… 用 #标签 归类。",
           "panel.add": "添加",

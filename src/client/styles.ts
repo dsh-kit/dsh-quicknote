@@ -15,6 +15,24 @@ export const PAGE_CSS = `
   color: var(--dsw-alias-label-primary, inherit);
   color-scheme: light dark;
 }
+.qn-back {
+  display: block;
+  max-width: 100%;
+  margin: 0 0 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--dsw-alias-brand-primary, #4d6bfe);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.qn-back:hover { text-decoration: underline; }
+.qn-back:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary, #4d6bfe); outline-offset: 2px; }
 .qn-title { margin: 0; font-size: 22px; line-height: 1.3; }
 .qn-lede { margin: 6px 0 18px; color: var(--dsw-alias-label-secondary, inherit); }
 .qn-compose { display: flex; gap: 8px; align-items: flex-start; }

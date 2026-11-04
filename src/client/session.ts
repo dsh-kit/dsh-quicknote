@@ -150,6 +150,18 @@ export function openPanel(): boolean {
   }
 }
 
+/** Return the main column to the Conversation; false when the shell has no layout. */
+export function showConversation(): boolean {
+  try {
+    const layout = service("layout");
+    if (typeof layout?.selectPanel !== "function") return false;
+    layout.selectPanel(null);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Open the capture card for the active composer. */
 export function openCapture(): void {
   const sessionId = focusedSessionId();
