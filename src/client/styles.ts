@@ -72,6 +72,16 @@ export const PAGE_CSS = `
   color: var(--dsw-alias-label-primary, inherit);
   font: inherit;
 }
+.qn-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; }
+.qn-tags-label { font-size: 12px; color: var(--dsw-alias-label-tertiary, inherit); }
+.qn-tag {
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.qn-note-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.qn-note-tags .qn-tag { padding: 1px 7px; font-size: 11px; }
 .qn-list { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 8px; }
 .qn-note {
   display: grid;
@@ -105,6 +115,9 @@ export const PAGE_CSS = `
   .qn-note-actions { justify-content: flex-start; }
 }
 @media (max-width: 420px) {
+  .qn-tags { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+  .qn-tags-label { flex: none; }
+  .qn-tag { flex: none; }
   .qn-note-actions { gap: 6px; }
 }
 `;
