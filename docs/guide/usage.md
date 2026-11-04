@@ -14,7 +14,9 @@ Closing the card without saving does nothing.
 
 ## From the sidebar
 
-**Quick Note** lists notes newest-first. Use **All / Open / Done** and the search box to narrow the list.
+**Quick Note** lists notes newest-first. Use **All / Open / Done** and the search box to narrow the list. The
+**Back to conversation** link above the title returns to the Session you were in, and names it; the sidebar Session
+row does the same.
 
 ## Tags
 

@@ -7,6 +7,7 @@ import {
   openPanel,
   originOf,
   setClientContext,
+  showConversation,
   targetSessionId,
 } from "../src/client/session.ts";
 
@@ -147,5 +148,17 @@ describe("quicknote panel routing", () => {
   it("reports a failure instead of throwing when the layout is absent", () => {
     setClientContext({ get: () => undefined });
     expect(openPanel()).toBe(false);
+    expect(showConversation()).toBe(false);
+  });
+
+  it("returns to the Conversation by clearing the panel selection", () => {
+    const panels: unknown[] = [];
+    setClientContext({
+      get: (name: string) =>
+        name === "layout" ? { selectPanel: (id: string | null) => panels.push(id) } : undefined,
+    });
+
+    expect(showConversation()).toBe(true);
+    expect(panels).toEqual([null]);
   });
 });
