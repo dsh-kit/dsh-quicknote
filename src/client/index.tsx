@@ -45,6 +45,13 @@ function Icon({ size = 18 }: { size?: number }) {
   );
 }
 
+const UNDO_WINDOW = 8_000;
+
+function previewOf(text: string): string {
+  const flat = text.replace(/\s+/g, " ").trim();
+  return flat.length > 80 ? `${flat.slice(0, 80)}…` : flat;
+}
+
 function Page({ t }: { t: (key: string) => string }) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [text, setText] = useState("");
@@ -53,6 +60,7 @@ function Page({ t }: { t: (key: string) => string }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [tag, setTag] = useState<string | null>(null);
+  const [undo, setUndo] = useState<Note[]>([]);
 
   async function load() {
     try {
@@ -75,6 +83,12 @@ function Page({ t }: { t: (key: string) => string }) {
     const timer = window.setTimeout(() => setNotice(""), 3000);
     return () => window.clearTimeout(timer);
   }, [notice]);
+
+  useEffect(() => {
+    if (undo.length === 0) return;
+    const timer = window.setTimeout(() => setUndo([]), UNDO_WINDOW);
+    return () => window.clearTimeout(timer);
+  }, [undo]);
 
   async function add(event: FormEvent) {
     event.preventDefault();
@@ -106,7 +120,32 @@ function Page({ t }: { t: (key: string) => string }) {
 
   async function remove(note: Note) {
     try {
-      await request("/notes/delete", { method: "POST", body: JSON.stringify({ id: note.id }) });
+      const data = await request<{ note: Note | null }>("/notes/delete", {
+        method: "POST",
+        body: JSON.stringify({ id: note.id }),
+      });
+      const removed = data.note;
+      if (removed) setUndo((current) => [...current, removed]);
+      setError("");
+      await load();
+    } catch (cause) {
+      setError(String((cause as Error).message));
+    }
+  }
+
+  async function undoDelete() {
+    if (undo.length === 0) return;
+    try {
+      await Promise.all(
+        undo.map((note) =>
+          request("/notes/restore", {
+            method: "POST",
+            body: JSON.stringify({ note }),
+          }),
+        ),
+      );
+      setNotice(t(undo.length > 1 ? "panel.deletesUndone" : "panel.deleteUndone"));
+      setUndo([]);
       setError("");
       await load();
     } catch (cause) {
@@ -300,7 +339,12 @@ function Page({ t }: { t: (key: string) => string }) {
                     <button type="button" className="qn-button" onClick={() => void toggle(note)}>
                       {note.done ? t("panel.reopen") : t("panel.done")}
                     </button>
-                    <button type="button" className="qn-button" onClick={() => void remove(note)}>
+                    <button
+                      type="button"
+                      className="qn-button"
+                      title={t("panel.deleteHint")}
+                      onClick={() => void remove(note)}
+                    >
                       {t("panel.delete")}
                     </button>
                   </div>
@@ -308,6 +352,29 @@ function Page({ t }: { t: (key: string) => string }) {
               );
             })}
           </ul>
+        )}
+        {undo.length === 0 ? null : (
+          <div className="qn-toast" role="status" aria-live="polite">
+            <span className="qn-toast-text">
+              {undo.length === 1
+                ? t("panel.deleted")
+                : t("panel.deletedCount").replace("{count}", String(undo.length))}{" "}
+              {previewOf(undo[undo.length - 1].text)}
+            </span>
+            <div className="qn-toast-actions">
+              <button type="button" className="qn-button" onClick={() => void undoDelete()}>
+                {undo.length > 1 ? t("panel.undoAll") : t("panel.undo")}
+              </button>
+              <button
+                type="button"
+                className="qn-button"
+                aria-label={t("panel.dismiss")}
+                onClick={() => setUndo([])}
+              >
+                ×
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </>
@@ -347,7 +414,13 @@ export function apply(ctx: any): void {
           "panel.done": "Done",
           "panel.reopen": "Reopen",
           "panel.delete": "Delete",
+          "panel.deleteHint": "Delete this note. You can undo it right after.",
           "panel.deleted": "Note deleted.",
+          "panel.deletedCount": "Deleted {count} notes.",
+          "panel.deleteUndone": "Note restored.",
+          "panel.deletesUndone": "Notes restored.",
+          "panel.undoAll": "Undo all",
+          "panel.dismiss": "Dismiss",
           "panel.completed": "Note updated.",
           "panel.undo": "Undo",
           "toolbar.capture": "Quick Note",
@@ -387,7 +460,13 @@ export function apply(ctx: any): void {
           "panel.done": "完成",
           "panel.reopen": "重新打开",
           "panel.delete": "删除",
+          "panel.deleteHint": "删除这条笔记，随后可以撤销。",
           "panel.deleted": "笔记已删除。",
+          "panel.deletedCount": "已删除 {count} 条笔记。",
+          "panel.deleteUndone": "笔记已恢复。",
+          "panel.deletesUndone": "笔记已恢复。",
+          "panel.undoAll": "全部撤销",
+          "panel.dismiss": "关闭提示",
           "panel.completed": "笔记已更新。",
           "panel.undo": "撤销",
           "toolbar.capture": "随手记",
