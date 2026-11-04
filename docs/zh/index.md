@@ -20,7 +20,7 @@ features:
   - title: 捕获，不抢走草稿
     details: 卡片会带上当前草稿；保存默认不清空，清空是单独、明确的动作。
   - title: 一页管理
-    details: 按时间倒序、完成/重新打开、删除，数据保存在本地 JSON。
+    details: 按时间倒序，支持搜索、完成筛选和 #标签；删除可撤销，数据保存在本地 JSON。
   - title: Agent 工具
     details: quicknote_add、quicknote_list、quicknote_done、quicknote_delete。
 ---

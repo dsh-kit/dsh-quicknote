@@ -7,8 +7,10 @@
 一条笔记：
 
 ```json
-{ "id": "uuid", "text": "…", "done": false, "createdAt": 1760000000000 }
+{ "id": "uuid", "text": "…", "done": false, "createdAt": 1760000000000, "origin": { "sessionId": "…", "title": "…" } }
 ```
+
+`origin` 可选。标签不单独存储：页面从 `text` 中解析 `#标签`。
 
 ## 路由
 
@@ -17,7 +19,8 @@
 | GET | `/api/quicknote/notes` | — |
 | POST | `/api/quicknote/notes/create` | `{ "text": "…" }` |
 | POST | `/api/quicknote/notes/update` | `{ "id": "…", "done": true }` |
-| POST | `/api/quicknote/notes/delete` | `{ "id": "…" }` |
+| POST | `/api/quicknote/notes/delete` | `{ "id": "…" }`，返回被删除的笔记 |
+| POST | `/api/quicknote/notes/restore` | `{ "note": { … } }`，恢复被删除的笔记 |
 
 ## 工具
 

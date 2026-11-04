@@ -20,7 +20,7 @@ features:
   - title: Capture, do not steal
     details: The card opens with the composer draft. Saving keeps it; clearing is a separate, labelled action.
   - title: One page
-    details: Newest-first list, done/reopen and delete, backed by a local JSON file.
+    details: Newest-first list with search, done filters and #tags; delete has an undo, and notes stay in a local JSON file.
   - title: Agent tools
     details: quicknote_add, quicknote_list, quicknote_done and quicknote_delete.
 ---
