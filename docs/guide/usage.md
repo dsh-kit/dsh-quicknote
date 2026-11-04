@@ -7,6 +7,8 @@ Click **Quick Note** in the composer toolbar. The card opens with the current dr
 - **Save note**: stores the text and leaves the draft untouched.
 - **Save and clear draft**: stores the text, then clears the composer only after the Host confirms the save. A receipt
   above the composer lets you reopen the note list or undo the move and restore the draft.
+- **View all**: the link in the card's top-right corner opens the notes page; the number in brackets is how many notes
+  are saved. Text typed in the card is kept until you open the card again.
 
 Closing the card without saving does nothing.
 

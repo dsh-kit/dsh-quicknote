@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   insertIntoComposer,
   mainSessionId,
+  openPanel,
   setClientContext,
   targetSessionId,
 } from "../src/client/session.ts";
@@ -112,5 +113,13 @@ describe("quicknote composer targeting", () => {
     setClientContext(fakeContext({}));
     expect(mainSessionId()).toBeUndefined();
     expect(insertIntoComposer("a note")).toBe(false);
+  });
+
+  it("opens the notes page through the layout service", () => {
+    const panels: unknown[] = [];
+    setClientContext({ layout: { selectPanel: (id: string) => panels.push(id) } });
+
+    openPanel();
+    expect(panels).toEqual(["dsh-quicknote"]);
   });
 });
