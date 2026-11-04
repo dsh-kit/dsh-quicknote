@@ -47,7 +47,7 @@ pnpm verify   # 格式 → lint → 类型 → 测试 → 构建 → 打包
 
 npm 也可用：`npm install && npm run verify`。
 
-- `src/host/`：存储、五个 JSON 路由、四个 Agent 工具；
+- `src/host/`：存储、JSON 路由、四个 Agent 工具；
 - `src/client/`：输入框按钮、记录卡片、侧栏页面；
 - `lib/`：构建产物，提交进仓库（`link:` 安装不会构建）；
 - `tests/`：存储与客户端注册测试；
