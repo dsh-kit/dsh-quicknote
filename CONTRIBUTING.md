@@ -20,10 +20,10 @@ pnpm verify
 
 ## Review
 
-`main` is protected by `verify (24)`, `verify (26)` and `gitleaks`, with linear history and squash merge only; no
-approving review is required. Each pull request lands as a single commit, so **open one pull request per concern** —
-separate pull requests are what keep a change independently revertable. A branch may hold several commits while it is
-under review; they are squashed on merge.
+`main` requires the checks defined in [`.github/workflows/`](.github/workflows), linear history, and squash-only
+merges. Approving reviews are not required. Each pull request lands as a single commit, so **open one pull request per
+concern**: separate pull requests are what keep a change independently revertable. A branch may hold several commits
+while it is under review; they are squashed on merge.
 
 ## Release
 

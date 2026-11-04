@@ -49,7 +49,7 @@ pnpm verify   # format → lint → typecheck → tests → build → pack
 
 npm works too: `npm install && npm run verify`.
 
-- `src/host/` — store, five JSON routes and four Agent tools.
+- `src/host/` — store, JSON routes and four Agent tools.
 - `src/client/` — composer button, capture card, sidebar page.
 - `lib/` — generated, committed (a `link:` install never builds).
 - `tests/` — store and client registration.
