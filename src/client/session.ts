@@ -7,6 +7,26 @@ export function setClientContext(ctx: any): void {
   clientCtx = ctx;
 }
 
+/**
+ * Read an optional client service. Cordis throws on `ctx.<service>` for a
+ * service the plugin did not declare in `inject`, while `ctx.get(name)`
+ * returns `undefined` instead — so resolve through `get` first and keep the
+ * property path only as a fallback for older shells.
+ */
+function service(name: string): any {
+  try {
+    const resolved = clientCtx?.get?.(name);
+    if (resolved !== undefined) return resolved;
+  } catch {
+    // Fall back to the property below.
+  }
+  try {
+    return clientCtx?.[name];
+  } catch {
+    return undefined;
+  }
+}
+
 export function sessionIdNear(node: any): string | undefined {
   try {
     const owner =
@@ -21,7 +41,7 @@ export function sessionIdNear(node: any): string | undefined {
 export function composerOf(sessionId: string | undefined) {
   if (sessionId === undefined) return undefined;
   try {
-    const input = clientCtx?.get("conversation")?.input;
+    const input = service("conversation")?.input;
     if (typeof input?.shell !== "function") return undefined;
     const shell = input.shell(sessionId);
     if (!shell?.state || !shell?.actions) return undefined;
@@ -63,13 +83,13 @@ export function focusedSessionId(): string | undefined {
  */
 export function mainSessionId(): string | undefined {
   try {
-    const selected = clientCtx?.get?.("uiWorkspace")?.selection?.getSnapshot?.()?.sessionId;
+    const selected = service("uiWorkspace")?.selection?.getSnapshot?.()?.sessionId;
     if (typeof selected === "string" && selected !== "") return selected;
   } catch {
     // An older shell may not expose uiWorkspace; try the retention snapshot.
   }
   try {
-    const byId = clientCtx?.sessions?.list?.getSnapshot?.()?.byId ?? {};
+    const byId = service("sessions")?.list?.getSnapshot?.()?.byId ?? {};
     for (const row of Object.values(byId) as Array<{
       id?: unknown;
       retainedBy?: { mainView?: number };
@@ -108,7 +128,7 @@ export function insertIntoComposer(text: string): boolean {
 export function originOf(sessionId: string | undefined): { sessionId: string; title: string } {
   if (!sessionId) return { sessionId: "", title: "" };
   try {
-    const row = clientCtx?.sessions?.list?.getSnapshot?.()?.byId?.[sessionId];
+    const row = service("sessions")?.list?.getSnapshot?.()?.byId?.[sessionId];
     return {
       sessionId,
       title: typeof row?.title === "string" ? row.title : "",
@@ -118,12 +138,15 @@ export function originOf(sessionId: string | undefined): { sessionId: string; ti
   }
 }
 
-/** Show the notes page in the main column. */
-export function openPanel(): void {
+/** Show the notes page in the main column; false when the shell has no layout. */
+export function openPanel(): boolean {
   try {
-    clientCtx?.layout?.selectPanel?.(NAME);
+    const layout = service("layout");
+    if (typeof layout?.selectPanel !== "function") return false;
+    layout.selectPanel(NAME);
+    return true;
   } catch {
-    // The layout service is optional during early boot.
+    return false;
   }
 }
 

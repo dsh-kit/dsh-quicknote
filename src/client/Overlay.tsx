@@ -50,9 +50,12 @@ export function Overlay({ t }: { t: (key: string) => string }) {
 
   /** Leave the card for the notes page, keeping what the user typed for the next open. */
   function viewAll() {
+    if (!openPanel()) {
+      setError(t("overlay.openFailed"));
+      return;
+    }
     stashCaptureText(sessionId, text);
     setOpen(false);
-    openPanel();
   }
 
   useEffect(() => {

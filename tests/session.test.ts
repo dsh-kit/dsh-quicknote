@@ -5,12 +5,14 @@ import {
   insertIntoComposer,
   mainSessionId,
   openPanel,
+  originOf,
   setClientContext,
   targetSessionId,
 } from "../src/client/session.ts";
 
 interface Row {
   id: string;
+  title?: string;
   retainedBy?: { mainView?: number };
 }
 
@@ -20,8 +22,10 @@ function fakeContext(options: {
   rows?: Record<string, Row>;
 }) {
   const drafts = options.drafts ?? {};
+  const sessions = { list: { getSnapshot: () => ({ byId: options.rows ?? {} }) } };
   return {
     get(name: string) {
+      if (name === "sessions") return sessions;
       if (name === "conversation") {
         return {
           input: {
@@ -40,9 +44,6 @@ function fakeContext(options: {
         return { selection: { getSnapshot: () => options.selection } };
       }
       return undefined;
-    },
-    sessions: {
-      list: { getSnapshot: () => ({ byId: options.rows ?? {} }) },
     },
   };
 }
@@ -115,11 +116,36 @@ describe("quicknote composer targeting", () => {
     expect(insertIntoComposer("a note")).toBe(false);
   });
 
-  it("opens the notes page through the layout service", () => {
+  it("reads the captured Session title through the service accessor", () => {
+    setClientContext(
+      fakeContext({ rows: { "session-1": { id: "session-1", title: "Planning" } } }),
+    );
+    expect(originOf("session-1")).toEqual({ sessionId: "session-1", title: "Planning" });
+  });
+});
+
+describe("quicknote panel routing", () => {
+  it("opens the notes page through ctx.get, as a plugin without the inject must", () => {
+    const panels: unknown[] = [];
+    setClientContext({
+      get: (name: string) =>
+        name === "layout" ? { selectPanel: (id: string) => panels.push(id) } : undefined,
+    });
+
+    expect(openPanel()).toBe(true);
+    expect(panels).toEqual(["dsh-quicknote"]);
+  });
+
+  it("keeps a property path for shells without get", () => {
     const panels: unknown[] = [];
     setClientContext({ layout: { selectPanel: (id: string) => panels.push(id) } });
 
-    openPanel();
+    expect(openPanel()).toBe(true);
     expect(panels).toEqual(["dsh-quicknote"]);
+  });
+
+  it("reports a failure instead of throwing when the layout is absent", () => {
+    setClientContext({ get: () => undefined });
+    expect(openPanel()).toBe(false);
   });
 });
