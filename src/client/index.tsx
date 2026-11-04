@@ -4,10 +4,12 @@
  * @module dsh-quicknote/client
  */
 import { useEffect, useState } from "react";
-import type { CSSProperties, FormEvent } from "react";
+import type { FormEvent } from "react";
 
 import { API, NAME, NS } from "../shared/constants.ts";
 import { ComposerButton } from "./ComposerButton.tsx";
+import { filterNotes, formatTime, notesToMarkdown } from "./notes.ts";
+import type { Filter, Note } from "./notes.ts";
 import { Overlay } from "./Overlay.tsx";
 import {
   focusedSessionId,
@@ -17,14 +19,7 @@ import {
   setClientContext,
 } from "./session.ts";
 import { ParkedBar } from "./ParkedBar.tsx";
-
-interface Note {
-  id: string;
-  text: string;
-  done: boolean;
-  createdAt: number;
-  origin?: { sessionId: string; title: string };
-}
+import { PAGE_CSS } from "./styles.ts";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API}${path}`, {
@@ -49,42 +44,6 @@ function Icon({ size = 18 }: { size?: number }) {
     </svg>
   );
 }
-
-function formatTime(value: number): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  const now = new Date();
-  const clock = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-  if (date.toDateString() === now.toDateString()) return clock;
-  const monthDay = `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-  return date.getFullYear() === now.getFullYear()
-    ? `${monthDay} ${clock}`
-    : `${date.getFullYear()}-${monthDay}`;
-}
-
-function notesToMarkdown(notes: Note[], t: (key: string) => string): string {
-  if (notes.length === 0) return "";
-  const lines = [`# ${t("panel.title")}`, ""];
-  for (const note of notes) {
-    lines.push(`- [${note.done ? "x" : " "}] ${note.text.replace(/\n/g, "\n  ")}`);
-    lines.push(`  <sub>${formatTime(note.createdAt)}</sub>`);
-    lines.push("");
-  }
-  return lines.join("\n");
-}
-
-type Filter = "all" | "open" | "done";
-
-const border = "1px solid var(--dsw-alias-border-l1, rgba(127,127,127,.24))";
-const controlStyle: CSSProperties = {
-  padding: "5px 9px",
-  borderRadius: 7,
-  border,
-  background: "var(--dsw-alias-bg-layer-1, transparent)",
-  color: "var(--dsw-alias-label-primary, inherit)",
-  font: "inherit",
-  cursor: "pointer",
-};
 
 function Page({ t }: { t: (key: string) => string }) {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -162,15 +121,6 @@ function Page({ t }: { t: (key: string) => string }) {
     }
   }
 
-  async function copyAll() {
-    try {
-      await navigator.clipboard.writeText(notesToMarkdown(notes, t));
-      setNotice(t("panel.copyAllDone"));
-    } catch {
-      setError(t("panel.copyFailed"));
-    }
-  }
-
   function insert(note: Note) {
     setNotice(insertIntoComposer(note.text) ? t("panel.inserted") : t("panel.insertUnavailable"));
   }
@@ -181,196 +131,124 @@ function Page({ t }: { t: (key: string) => string }) {
     open: notes.filter((note) => !note.done).length,
     done: notes.filter((note) => note.done).length,
   };
-  const visible = notes.filter((note) => {
-    if (filter === "open" && note.done) return false;
-    if (filter === "done" && !note.done) return false;
-    if (needle === "") return true;
-    return note.text.toLowerCase().includes(needle);
-  });
+  const visible = filterNotes(notes, { filter, query: needle });
+
+  async function copyAll() {
+    try {
+      await navigator.clipboard.writeText(notesToMarkdown(notes, t("panel.title")));
+      setNotice(t("panel.copyAllDone"));
+    } catch {
+      setError(t("panel.copyFailed"));
+    }
+  }
 
   return (
-    <div
-      style={{
-        boxSizing: "border-box",
-        minHeight: "100%",
-        padding: "24px 28px",
-        maxWidth: 760,
-        background: "var(--dsw-alias-bg-base, transparent)",
-        color: "var(--dsw-alias-label-primary, inherit)",
-        colorScheme: "light dark",
-      }}
-    >
-      <h1 style={{ fontSize: 22, margin: 0 }}>{t("panel.title")}</h1>
-      <p style={{ margin: "6px 0 18px", color: "var(--dsw-alias-label-secondary)" }}>
-        {t("panel.body")}
-      </p>
-      <form onSubmit={add} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-        <textarea
-          data-testid="note-input"
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-          placeholder={t("panel.placeholder")}
-          rows={3}
-          style={{
-            flex: 1,
-            resize: "vertical",
-            padding: 10,
-            borderRadius: 8,
-            border,
-            background: "var(--dsw-alias-bg-layer-1, transparent)",
-            color: "var(--dsw-alias-label-primary, inherit)",
-            colorScheme: "light dark",
-            font: "inherit",
-          }}
-        />
-        <button
-          data-testid="note-add"
-          type="submit"
-          disabled={text.trim() === ""}
-          style={{
-            padding: "9px 14px",
-            borderRadius: 8,
-            border,
-            background: "var(--dsw-alias-bg-layer-1, transparent)",
-            color: "var(--dsw-alias-label-primary, inherit)",
-            font: "inherit",
-            cursor: text.trim() === "" ? "default" : "pointer",
-            opacity: text.trim() === "" ? 0.5 : 1,
-          }}
-        >
-          {t("panel.add")}
-        </button>
-      </form>
-      {notes.length === 0 ? null : (
-        <div
-          style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 14 }}
-        >
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {(
-              [
-                ["all", "panel.filterAll"],
-                ["open", "panel.filterOpen"],
-                ["done", "panel.filterDone"],
-              ] as const
-            ).map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                aria-pressed={filter === id}
-                onClick={() => setFilter(id)}
-                style={{
-                  ...controlStyle,
-                  borderColor:
-                    filter === id
-                      ? "var(--dsw-alias-brand-primary, currentColor)"
-                      : "var(--dsw-alias-border-l1, rgba(127,127,127,.24))",
-                  color:
-                    filter === id
-                      ? "var(--dsw-alias-brand-primary, currentColor)"
-                      : "var(--dsw-alias-label-secondary, inherit)",
-                }}
-              >
-                {t(label)} {counts[id]}
-              </button>
-            ))}
-          </div>
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={t("panel.search")}
-            aria-label={t("panel.search")}
-            style={{
-              flex: 1,
-              minWidth: 160,
-              padding: "5px 9px",
-              borderRadius: 7,
-              border,
-              background: "var(--dsw-alias-bg-layer-1, transparent)",
-              color: "var(--dsw-alias-label-primary, inherit)",
-              font: "inherit",
-            }}
+    <>
+      <style data-dsh-quicknote="">{PAGE_CSS}</style>
+      <div className="qn-page">
+        <h1 className="qn-title">{t("panel.title")}</h1>
+        <p className="qn-lede">{t("panel.body")}</p>
+        <form className="qn-compose" onSubmit={add}>
+          <textarea
+            data-testid="note-input"
+            className="qn-textarea"
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            placeholder={t("panel.placeholder")}
+            rows={3}
           />
-          <button type="button" onClick={() => void copyAll()} style={controlStyle}>
-            {t("panel.copyAll")}
+          <button
+            data-testid="note-add"
+            className="qn-button qn-primary"
+            type="submit"
+            disabled={text.trim() === ""}
+          >
+            {t("panel.add")}
           </button>
-        </div>
-      )}
-      {error === "" ? null : (
-        <p role="alert" style={{ color: "var(--dsw-alias-state-error-primary, #c0392b)" }}>
-          {error}
-        </p>
-      )}
-      {notice === "" ? null : (
-        <p role="status" style={{ color: "var(--dsw-alias-label-secondary)", margin: "8px 0 0" }}>
-          {notice}
-        </p>
-      )}
-      {notes.length === 0 ? (
-        <p style={{ marginTop: 24, color: "var(--dsw-alias-label-secondary)" }}>
-          {t("panel.empty")}
-        </p>
-      ) : visible.length === 0 ? (
-        <p style={{ marginTop: 24, color: "var(--dsw-alias-label-secondary)" }}>
-          {t("panel.noMatches")}
-        </p>
-      ) : (
-        <ul style={{ listStyle: "none", padding: 0, margin: "24px 0 0", display: "grid", gap: 8 }}>
-          {visible.map((note) => (
-            <li
-              key={note.id}
-              data-testid="note-item"
-              style={{
-                display: "flex",
-                gap: 8,
-                alignItems: "flex-start",
-                padding: 12,
-                border,
-                borderRadius: 10,
-                background: "var(--dsw-alias-bg-layer-1, transparent)",
-              }}
-            >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                    textDecoration: note.done ? "line-through" : "none",
-                    opacity: note.done ? 0.6 : 1,
-                  }}
+        </form>
+        {notes.length === 0 ? null : (
+          <div className="qn-toolbar">
+            <div className="qn-filters" role="group" aria-label={t("panel.filters")}>
+              {(
+                [
+                  ["all", "panel.filterAll"],
+                  ["open", "panel.filterOpen"],
+                  ["done", "panel.filterDone"],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  className="qn-button"
+                  aria-pressed={filter === id}
+                  onClick={() => setFilter(id)}
                 >
-                  {note.text}
+                  {t(label)} {counts[id]}
+                </button>
+              ))}
+            </div>
+            <input
+              type="search"
+              className="qn-search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={t("panel.search")}
+              aria-label={t("panel.search")}
+            />
+            <button type="button" className="qn-button" onClick={() => void copyAll()}>
+              {t("panel.copyAll")}
+            </button>
+          </div>
+        )}
+        {error === "" ? null : (
+          <p role="alert" className="qn-alert">
+            {error}
+          </p>
+        )}
+        {notice === "" ? null : (
+          <p role="status" className="qn-status">
+            {notice}
+          </p>
+        )}
+        {notes.length === 0 ? (
+          <p className="qn-empty">{t("panel.empty")}</p>
+        ) : visible.length === 0 ? (
+          <p className="qn-empty">{t("panel.noMatches")}</p>
+        ) : (
+          <ul className="qn-list">
+            {visible.map((note) => (
+              <li key={note.id} data-testid="note-item" className="qn-note">
+                <div className="qn-note-body">
+                  <p className={`qn-note-text${note.done ? " qn-note-text-done" : ""}`}>
+                    {note.text}
+                  </p>
+                  <div className="qn-note-meta">
+                    <time dateTime={new Date(note.createdAt).toISOString()}>
+                      {formatTime(note.createdAt)}
+                    </time>
+                    {note.origin?.title ? ` · ${note.origin.title}` : ""}
+                  </div>
                 </div>
-                <div
-                  style={{ marginTop: 4, fontSize: 11, color: "var(--dsw-alias-label-tertiary)" }}
-                >
-                  <time dateTime={new Date(note.createdAt).toISOString()}>
-                    {formatTime(note.createdAt)}
-                  </time>
-                  {note.origin?.title ? ` · ${note.origin.title}` : ""}
+                <div className="qn-note-actions">
+                  <button type="button" className="qn-button" onClick={() => void copy(note)}>
+                    {t("panel.copy")}
+                  </button>
+                  <button type="button" className="qn-button" onClick={() => insert(note)}>
+                    {t("panel.insert")}
+                  </button>
+                  <button type="button" className="qn-button" onClick={() => void toggle(note)}>
+                    {note.done ? t("panel.reopen") : t("panel.done")}
+                  </button>
+                  <button type="button" className="qn-button" onClick={() => void remove(note)}>
+                    {t("panel.delete")}
+                  </button>
                 </div>
-              </div>
-              <div
-                style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}
-              >
-                <button type="button" onClick={() => void copy(note)} style={controlStyle}>
-                  {t("panel.copy")}
-                </button>
-                <button type="button" onClick={() => insert(note)} style={controlStyle}>
-                  {t("panel.insert")}
-                </button>
-                <button type="button" onClick={() => void toggle(note)} style={controlStyle}>
-                  {note.done ? t("panel.reopen") : t("panel.done")}
-                </button>
-                <button type="button" onClick={() => void remove(note)} style={controlStyle}>
-                  {t("panel.delete")}
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -390,6 +268,7 @@ export function apply(ctx: any): void {
           "panel.empty": "No notes yet.",
           "panel.noMatches": "No matching notes.",
           "panel.search": "Search notes",
+          "panel.filters": "Filter notes",
           "panel.filterAll": "All",
           "panel.filterOpen": "Open",
           "panel.filterDone": "Done",
@@ -427,6 +306,7 @@ export function apply(ctx: any): void {
           "panel.empty": "还没有笔记。",
           "panel.noMatches": "没有匹配的笔记。",
           "panel.search": "搜索笔记",
+          "panel.filters": "筛选笔记",
           "panel.filterAll": "全部",
           "panel.filterOpen": "未完成",
           "panel.filterDone": "已完成",
